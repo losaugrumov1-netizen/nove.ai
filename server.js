@@ -211,11 +211,6 @@ app.post("/api/chat", async (req, res) => {
 // =========================
 // FRONTEND FALLBACK
 // =========================
-app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "index.html")
-  );
-});
 // =========================
 // START SERVER
 // =========================
