@@ -9,32 +9,24 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT || 3000;
-
-/* =========================
-   MIDDLEWARE
-========================= */
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-/* =========================
-   FRONTEND
-========================= */
+// =========================
+// FRONTEND
+// =========================
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 app.use(express.static(__dirname));
 
-/* =========================
-   OPENAI
-========================= */
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
-/* =========================
-   STATUS
-========================= */
+// =========================
+// STATUS
+// =========================
 
 app.get("/api/status", (req, res) => {
   res.json({
@@ -44,9 +36,17 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-/* =========================
-   AI CHAT
-========================= */
+// =========================
+// OPENAI
+// =========================
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+// =========================
+// AI CHAT
+// =========================
 
 app.post("/api/chat", async (req, res) => {
   try {
@@ -68,7 +68,7 @@ app.post("/api/chat", async (req, res) => {
       {
         role: "system",
         content:
-          "You are NOVA, a helpful AI assistant. Be clear, useful and friendly."
+          "You are NOVA, a helpful AI assistant. Be clear, useful, friendly and concise."
       },
       ...history.slice(-12),
       {
@@ -83,7 +83,9 @@ app.post("/api/chat", async (req, res) => {
     });
 
     res.json({
-      reply: response.output_text || "NOVA couldn't generate a response."
+      reply:
+        response.output_text ||
+        "NOVA couldn't generate a response."
     });
 
   } catch (error) {
@@ -95,18 +97,10 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-/* =========================
-   FRONTEND FALLBACK
-========================= */
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-/* =========================
-   START SERVER
-========================= */
+// =========================
+// START
+// =========================
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`NOVA AI is running on port ${PORT}`);
+  console.log(`NOVA AI server running on port ${PORT}`);
 });
