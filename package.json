@@ -1,0 +1,32 @@
+< Files
+Cancel changes
+Commit changes...
+package.jso
+in main
+Edit
+Preview
+Spaces
+2
+스
+No wrap
+"name": "nove-ai-server",
+"version": "1.0.0",
+"type": "module",
+"scripts": {
+"start": "node server.js"
+7
+8
+9
+10
+11
+12
+13
+},
+"dependencies": {
+"cors":
+"^2.8.5", "express": "^5.1.0",
+"openai": "15.19.1"
+}
+}
+Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc
+then tab to move to the next interactive element on the page.
