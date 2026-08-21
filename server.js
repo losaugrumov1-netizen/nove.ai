@@ -2,82 +2,62 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-
 const app = express();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const PORT = process.env.PORT || 10000;
-
 // =========================
 // SETTINGS
 // =========================
-
 const FREE_MESSAGES = 50;
 const RESET_TIME = 24 * 60 * 60 * 1000;
-
 // =========================
 // MIDDLEWARE
 // =========================
-
+app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
-
 // =========================
 // FRONTEND
 // =========================
-
 app.use(express.static(__dirname));
-
 // =========================
 // FREE MESSAGE LIMIT
 // =========================
-
 const users = new Map();
-
 function getUser(ip) {
   const now = Date.now();
-
   let user = users.get(ip);
-
   if (!user) {
     user = {
       messages: 0,
       resetAt: now + RESET_TIME
     };
-
     users.set(ip, user);
   }
-
   if (now >= user.resetAt) {
     user.messages = 0;
     user.resetAt = now + RESET_TIME;
   }
-
   return user;
 }
-
 // =========================
 // STATUS
 // =========================
-
 app.get("/api/status", (req, res) => {
   res.json({
     status: "online",
     name: "NOVA AI",
     version: "2.0",
+    provider: "Mistral",
     freeMessages: FREE_MESSAGES
   });
 });
-
 // =========================
 // USAGE
 // =========================
-
 app.get("/api/usage", (req, res) => {
   const user = getUser(req.ip);
-
   res.json({
     used: user.messages,
     limit: FREE_MESSAGES,
@@ -88,42 +68,35 @@ app.get("/api/usage", (req, res) => {
     resetAt: user.resetAt
   });
 });
-
 // =========================
-// GEMINI AI CHAT
+// MISTRAL AI CHAT
 // =========================
-
 app.post("/api/chat", async (req, res) => {
   try {
     const { message, history = [] } = req.body;
-
     if (!message || !message.trim()) {
       return res.status(400).json({
         error: "Message is required"
       });
     }
-
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.MISTRAL_API_KEY) {
       return res.status(500).json({
-        error: "GEMINI_API_KEY is not configured"
+        error: "MISTRAL_API_KEY is not configured"
       });
     }
-
     const user = getUser(req.ip);
-
-    // Check free limit
+    // =========================
+    // CHECK FREE LIMIT
+    // =========================
     if (user.messages >= FREE_MESSAGES) {
       const remaining = user.resetAt - Date.now();
-
       const hours = Math.floor(
         remaining / (1000 * 60 * 60)
       );
-
       const minutes = Math.floor(
         (remaining % (1000 * 60 * 60)) /
           (1000 * 60)
       );
-
       return res.status(429).json({
         error: "FREE_LIMIT_REACHED",
         message:
@@ -134,112 +107,89 @@ app.post("/api/chat", async (req, res) => {
         resetAt: user.resetAt
       });
     }
-
     // =========================
     // CONVERSATION HISTORY
     // =========================
-
-    const contents = [];
-
+    const messages = [
+      {
+        role: "system",
+        content:
+          "You are NOVA, a helpful AI assistant. " +
+          "Your name is NOVA. " +
+          "Answer clearly, intelligently and naturally. " +
+          "Be helpful and friendly. " +
+          "Do not say that you are Mistral."
+      }
+    ];
     for (const item of history.slice(-12)) {
       if (!item || !item.content) continue;
-
-      contents.push({
+      messages.push({
         role:
           item.role === "assistant"
-            ? "model"
+            ? "assistant"
             : "user",
-        parts: [
-          {
-            text: String(item.content)
-          }
-        ]
+        content: String(item.content)
       });
     }
-
-    contents.push({
+    messages.push({
       role: "user",
-      parts: [
-        {
-          text: message.trim()
-        }
-      ]
+      content: message.trim()
     });
-
     // =========================
-    // GEMINI REQUEST
+    // MISTRAL REQUEST
     // =========================
-
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
-        encodeURIComponent(
-          process.env.GEMINI_API_KEY
-        ),
+      "https://api.mistral.ai/v1/chat/completions",
       {
         method: "POST",
-
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization":
+            `Bearer ${process.env.MISTRAL_API_KEY}`
         },
-
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [
-              {
-                text:
-                  "You are NOVA, a helpful AI assistant. " +
-                  "Your name is NOVA. " +
-                  "Answer clearly, intelligently and naturally. " +
-                  "Be helpful and friendly. " +
-                  "Do not say that you are Gemini."
-              }
-            ]
-          },
-
-          contents,
-
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048
-          }
+          model: "mistral-small-latest",
+          messages,
+          temperature: 0.7,
+          max_tokens: 2048
         })
       }
     );
-
     const data = await response.json();
-
+    // =========================
+    // API ERROR
+    // =========================
     if (!response.ok) {
       console.error(
-        "GEMINI API ERROR:",
+        "MISTRAL API ERROR:",
         data
       );
-
       return res.status(response.status).json({
-        error: "Gemini API request failed",
+        error: "Mistral API request failed",
         details:
+          data?.message ||
           data?.error?.message ||
-          "Unknown Gemini error"
+          "Unknown Mistral error"
       });
     }
-
+    // =========================
+    // GET AI RESPONSE
+    // =========================
     const reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(part => part.text || "")
-        .join("") || "";
-
+      data?.choices?.[0]?.message?.content || "";
     if (!reply) {
       return res.status(500).json({
         error:
           "NOVA received an empty AI response"
       });
     }
-
-    // Count successful request
+    // Count only successful AI requests
     user.messages++;
-
+    // =========================
+    // SEND RESPONSE
+    // =========================
     res.json({
       reply,
-
       usage: {
         used: user.messages,
         limit: FREE_MESSAGES,
@@ -248,23 +198,27 @@ app.post("/api/chat", async (req, res) => {
         resetAt: user.resetAt
       }
     });
-
   } catch (error) {
     console.error(
       "NOVA SERVER ERROR:",
       error
     );
-
     res.status(500).json({
       error: "NOVA AI request failed"
     });
   }
 });
-
+// =========================
+// FRONTEND FALLBACK
+// =========================
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "index.html")
+  );
+});
 // =========================
 // START SERVER
 // =========================
-
 app.listen(
   PORT,
   "0.0.0.0",
