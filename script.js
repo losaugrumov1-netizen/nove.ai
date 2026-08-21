@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupProfile();
   setupSettings();
   setupFiles();
+  setupVoice();
+
   renderHistory();
   renderSaved();
   renderFiles();
@@ -81,6 +83,7 @@ function updateAuthMode() {
   const register = authMode === "register";
 
   $("authTitle").textContent = register ? "Create account" : "Welcome back";
+
   $("authSubtitle").textContent = register
     ? "Create your NOVA account to continue."
     : "Login to continue to your NOVA workspace.";
@@ -115,7 +118,10 @@ function handleAuth(event) {
   let valid = true;
 
   if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
-    showError("username", "Username must be 3–20 English letters, numbers or _.");
+    showError(
+      "username",
+      "Username must be 3–20 English letters, numbers or _."
+    );
     valid = false;
   }
 
@@ -125,7 +131,10 @@ function handleAuth(event) {
   }
 
   if (password.length < 6) {
-    showError("password", "Password must contain at least 6 characters.");
+    showError(
+      "password",
+      "Password must contain at least 6 characters."
+    );
     valid = false;
   }
 
@@ -136,17 +145,25 @@ function handleAuth(event) {
 
   if (!valid) return;
 
-  const stored = JSON.parse(localStorage.getItem("novaAccount") || "null");
+  const stored = JSON.parse(
+    localStorage.getItem("novaAccount") || "null"
+  );
 
   if (authMode === "register") {
     if (stored) {
       if (stored.username === username) {
-        showError("username", "This username is already registered.");
+        showError(
+          "username",
+          "This username is already registered."
+        );
         return;
       }
 
       if (stored.email === email) {
-        showError("email", "This Gmail is already registered.");
+        showError(
+          "email",
+          "This Gmail is already registered."
+        );
         return;
       }
     }
@@ -159,9 +176,17 @@ function handleAuth(event) {
       avatar: ""
     };
 
-    localStorage.setItem("novaAccount", JSON.stringify(account));
+    localStorage.setItem(
+      "novaAccount",
+      JSON.stringify(account)
+    );
+
     currentUser = account;
-    localStorage.setItem("novaUser", JSON.stringify(account));
+
+    localStorage.setItem(
+      "novaUser",
+      JSON.stringify(account)
+    );
 
     showToast("Account created");
     showApp();
@@ -169,7 +194,10 @@ function handleAuth(event) {
   } else {
 
     if (!stored) {
-      showError("username", "No account found. Create an account first.");
+      showError(
+        "username",
+        "No account found. Create an account first."
+      );
       return;
     }
 
@@ -177,18 +205,33 @@ function handleAuth(event) {
       stored.username !== username ||
       stored.email !== email
     ) {
-      showError("username", "Username or Gmail is incorrect.");
-      showError("email", "Username or Gmail is incorrect.");
+      showError(
+        "username",
+        "Username or Gmail is incorrect."
+      );
+
+      showError(
+        "email",
+        "Username or Gmail is incorrect."
+      );
+
       return;
     }
 
     if (stored.password !== password) {
-      showError("password", "Incorrect password.");
+      showError(
+        "password",
+        "Incorrect password."
+      );
       return;
     }
 
     currentUser = stored;
-    localStorage.setItem("novaUser", JSON.stringify(currentUser));
+
+    localStorage.setItem(
+      "novaUser",
+      JSON.stringify(currentUser)
+    );
 
     showToast("Welcome back");
     showApp();
@@ -204,13 +247,19 @@ function showError(type, message) {
   };
 
   const ids = map[type];
+
   if (!ids) return;
 
   const input = $(ids[0]);
   const error = $(ids[1]);
 
-  if (input) input.classList.add("input-error");
-  if (error) error.textContent = message;
+  if (input) {
+    input.classList.add("input-error");
+  }
+
+  if (error) {
+    error.textContent = message;
+  }
 }
 
 function clearErrors() {
@@ -231,10 +280,18 @@ function togglePasswordField(inputId, buttonId) {
 
   if (input.type === "password") {
     input.type = "text";
-    if (button) button.textContent = "HIDE";
+
+    if (button) {
+      button.textContent = "HIDE";
+    }
+
   } else {
+
     input.type = "password";
-    if (button) button.textContent = "SHOW";
+
+    if (button) {
+      button.textContent = "SHOW";
+    }
   }
 }
 
@@ -253,6 +310,7 @@ function updateStrength() {
   if (/[^A-Za-z0-9]/.test(password)) width += 10;
 
   width = Math.min(width, 100);
+
   bar.style.width = width + "%";
 }
 
@@ -264,6 +322,7 @@ function showAuth() {
 function showApp() {
   $("authScreen")?.classList.add("hidden");
   $("app")?.classList.remove("hidden");
+
   updateUserUI();
 }
 
@@ -283,28 +342,40 @@ const pageNames = {
 };
 
 function setupNavigation() {
+
   document.querySelectorAll(".nav-item").forEach(button => {
+
     button.addEventListener("click", () => {
       navigate(button.dataset.page);
       closeMobileSidebar();
     });
+
   });
 
   document.querySelectorAll(".quick-card").forEach(button => {
+
     button.addEventListener("click", () => {
       navigate(button.dataset.quick);
     });
+
   });
 
-  $("startChatBtn")?.addEventListener("click", () => navigate("chat"));
+  $("startChatBtn")?.addEventListener(
+    "click",
+    () => navigate("chat")
+  );
 
-  $("newChatBtn")?.addEventListener("click", () => {
-    startNewChat();
-    navigate("chat");
-  });
+  $("newChatBtn")?.addEventListener(
+    "click",
+    () => {
+      startNewChat();
+      navigate("chat");
+    }
+  );
 }
 
 function navigate(page) {
+
   document.querySelectorAll(".page").forEach(el => {
     el.classList.remove("active");
   });
@@ -314,22 +385,39 @@ function navigate(page) {
   });
 
   const target = $("page-" + page);
-  if (target) target.classList.add("active");
+
+  if (target) {
+    target.classList.add("active");
+  }
 
   const nav = document.querySelector(
     `.nav-item[data-page="${page}"]`
   );
 
-  if (nav) nav.classList.add("active");
-
-  if (pageNames[page]) {
-    $("pageTitle").textContent = pageNames[page][0];
-    $("pageSubtitle").textContent = pageNames[page][1];
+  if (nav) {
+    nav.classList.add("active");
   }
 
-  if (page === "history") renderHistory();
-  if (page === "saved") renderSaved();
-  if (page === "files") renderFiles();
+  if (pageNames[page]) {
+
+    $("pageTitle").textContent =
+      pageNames[page][0];
+
+    $("pageSubtitle").textContent =
+      pageNames[page][1];
+  }
+
+  if (page === "history") {
+    renderHistory();
+  }
+
+  if (page === "saved") {
+    renderSaved();
+  }
+
+  if (page === "files") {
+    renderFiles();
+  }
 }
 
 
@@ -338,59 +426,93 @@ function navigate(page) {
 ========================= */
 
 function setupChat() {
-  $("sendBtn")?.addEventListener("click", sendMessage);
 
-  $("chatInput")?.addEventListener("keydown", event => {
-    if (
-      event.key === "Enter" &&
-      !event.shiftKey &&
-      settings.enterSend
-    ) {
-      event.preventDefault();
-      sendMessage();
+  $("sendBtn")?.addEventListener(
+    "click",
+    sendMessage
+  );
+
+  $("chatInput")?.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        settings.enterSend
+      ) {
+        event.preventDefault();
+        sendMessage();
+      }
+
     }
-  });
+  );
 
-  $("chatInput")?.addEventListener("input", autoResize);
+  $("chatInput")?.addEventListener(
+    "input",
+    autoResize
+  );
 
-  $("clearChatBtn")?.addEventListener("click", clearCurrentChat);
+  $("clearChatBtn")?.addEventListener(
+    "click",
+    clearCurrentChat
+  );
 
-  $("hideMenuChatBtn")?.addEventListener("click", hideMenu);
+  $("hideMenuChatBtn")?.addEventListener(
+    "click",
+    hideMenu
+  );
 
   document.querySelectorAll(".suggestion").forEach(button => {
+
     button.addEventListener("click", () => {
-      $("chatInput").value = button.dataset.suggestion;
+
+      $("chatInput").value =
+        button.dataset.suggestion;
+
       autoResize();
       sendMessage();
     });
+
   });
 
-  $("attachBtn")?.addEventListener("click", () => {
-    $("fileInput")?.click();
-  });
+  $("attachBtn")?.addEventListener(
+    "click",
+    () => {
+      $("fileInput")?.click();
+    }
+  );
 
-  $("voiceBtn")?.addEventListener("click", startVoiceInput);
-
-  $("fileInput")?.addEventListener("change", handleFileUpload);
+  $("fileInput")?.addEventListener(
+    "change",
+    handleFileUpload
+  );
 }
 
 function autoResize() {
+
   const input = $("chatInput");
+
   if (!input) return;
 
   input.style.height = "auto";
+
   input.style.height =
     Math.min(input.scrollHeight, 120) + "px";
 }
 
 async function sendMessage() {
+
   const input = $("chatInput");
+
   if (!input) return;
 
   const text = input.value.trim();
+
   if (!text) return;
 
   input.value = "";
+
   autoResize();
 
   $("welcomeChat")?.remove();
@@ -403,34 +525,53 @@ async function sendMessage() {
     time: Date.now()
   });
 
-  if (settings.autoSave) saveChats();
+  if (settings.autoSave) {
+    saveChats();
+  }
 
-  setAIStatus("NOVA is thinking...", true);
+  setAIStatus(
+    "NOVA is thinking...",
+    true
+  );
 
-  const typing = addMessage("Thinking...", "ai");
+  const typing =
+    addMessage("Thinking...", "ai");
 
   try {
-    const response = await fetch(API_URL + "/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: text,
-        history: chatMessages.slice(-12).map(m => ({
-          role: m.role,
-          content: m.content
-        }))
-      })
-    });
+
+    const response = await fetch(
+      API_URL + "/api/chat",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          message: text,
+
+          history: chatMessages
+            .slice(-12)
+            .map(m => ({
+              role: m.role,
+              content: m.content
+            }))
+        })
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Server error " + response.status);
+      throw new Error(
+        "Server error " +
+        response.status
+      );
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    typing.remove();
+    typing?.remove();
 
     const answer =
       data.reply ||
@@ -438,7 +579,10 @@ async function sendMessage() {
       data.response ||
       "NOVA didn't return a response.";
 
-    addMessage(answer, "ai");
+    addMessage(
+      answer,
+      "ai"
+    );
 
     chatMessages.push({
       role: "assistant",
@@ -446,10 +590,13 @@ async function sendMessage() {
       time: Date.now()
     });
 
-    if (settings.autoSave) saveChats();
+    if (settings.autoSave) {
+      saveChats();
+    }
 
   } catch (error) {
-    typing.remove();
+
+    typing?.remove();
 
     addMessage(
       "Не удалось подключиться к NOVA AI.\n\nПроверь Render-сервер и API key.",
@@ -459,50 +606,94 @@ async function sendMessage() {
     console.error(error);
   }
 
-  setAIStatus("NOVA is ready", false);
+  setAIStatus(
+    "NOVA is ready",
+    false
+  );
 }
 
 function addMessage(text, type) {
-  const container = $("chatMessages");
+
+  const container =
+    $("chatMessages");
+
   if (!container) return null;
 
-  const message = document.createElement("div");
-  message.className = "message " + type;
+  const message =
+    document.createElement("div");
 
-  const content = document.createElement("div");
+  message.className =
+    "message " + type;
+
+  const content =
+    document.createElement("div");
+
   content.textContent = text;
 
   message.appendChild(content);
 
   if (type === "ai") {
-    const actions = document.createElement("div");
-    actions.className = "message-actions";
 
-    const save = document.createElement("button");
-    save.textContent = "☆ Save";
+    const actions =
+      document.createElement("div");
 
-    save.addEventListener("click", () => {
-      saveResponse(text);
-      save.textContent = "✓ Saved";
-    });
+    actions.className =
+      "message-actions";
 
-    const copy = document.createElement("button");
-    copy.textContent = "Copy";
+    const save =
+      document.createElement("button");
 
-    copy.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast("Copied");
-      } catch {
-        showToast("Copy failed");
+    save.textContent =
+      "☆ Save";
+
+    save.addEventListener(
+      "click",
+      () => {
+
+        saveResponse(text);
+
+        save.textContent =
+          "✓ Saved";
       }
-    });
+    );
 
-    actions.append(save, copy);
-    message.appendChild(actions);
+    const copy =
+      document.createElement("button");
+
+    copy.textContent =
+      "Copy";
+
+    copy.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await navigator.clipboard
+            .writeText(text);
+
+          showToast("Copied");
+
+        } catch {
+
+          showToast("Copy failed");
+        }
+      }
+    );
+
+    actions.append(
+      save,
+      copy
+    );
+
+    message.appendChild(
+      actions
+    );
   }
 
-  container.appendChild(message);
+  container.appendChild(
+    message
+  );
 
   container.scrollTo({
     top: container.scrollHeight,
@@ -512,26 +703,42 @@ function addMessage(text, type) {
   return message;
 }
 
-function setAIStatus(text, thinking) {
-  const status = $("aiStatus");
+function setAIStatus(
+  text,
+  thinking
+) {
+
+  const status =
+    $("aiStatus");
+
   if (!status) return;
 
-  status.innerHTML = `<i></i>${text}`;
+  status.innerHTML =
+    `<i></i>${text}`;
 
-  const dot = status.querySelector("i");
+  const dot =
+    status.querySelector("i");
+
+  if (!dot) return;
 
   if (thinking) {
-    dot.style.background = "#f5c542";
+    dot.style.background =
+      "#f5c542";
   } else {
-    dot.style.background = "var(--success)";
+    dot.style.background =
+      "var(--success)";
   }
 }
 
 function clearCurrentChat() {
+
   chatMessages = [];
+
   saveChats();
 
-  const container = $("chatMessages");
+  const container =
+    $("chatMessages");
+
   if (!container) return;
 
   container.innerHTML = `
@@ -542,16 +749,22 @@ function clearCurrentChat() {
     </div>
   `;
 
-  showToast("Chat cleared");
+  showToast(
+    "Chat cleared"
+  );
 }
 
 function startNewChat() {
+
   chatMessages = [];
+
   saveChats();
 
-  const container = $("chatMessages");
+  const container =
+    $("chatMessages");
 
   if (container) {
+
     container.innerHTML = `
       <div class="welcome-chat" id="welcomeChat">
         <div class="nova-big">N</div>
@@ -568,6 +781,7 @@ function startNewChat() {
 ========================= */
 
 function saveChats() {
+
   localStorage.setItem(
     "novaChats",
     JSON.stringify(chatMessages)
@@ -575,21 +789,32 @@ function saveChats() {
 }
 
 function renderHistory() {
-  const list = $("historyList");
+
+  const list =
+    $("historyList");
+
   if (!list) return;
 
   list.innerHTML = "";
 
   if (!chatMessages.length) {
+
     list.innerHTML =
       `<div class="list-empty">No conversations yet.</div>`;
+
     return;
   }
 
   const groups = [];
 
-  for (let i = 0; i < chatMessages.length; i += 2) {
-    const first = chatMessages[i];
+  for (
+    let i = 0;
+    i < chatMessages.length;
+    i += 2
+  ) {
+
+    const first =
+      chatMessages[i];
 
     if (first) {
       groups.push(first);
@@ -597,40 +822,76 @@ function renderHistory() {
   }
 
   groups.reverse().forEach(item => {
-    const row = document.createElement("div");
-    row.className = "list-item";
 
-    const title = document.createElement("strong");
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "list-item";
+
+    const title =
+      document.createElement("strong");
+
     title.textContent =
       item.content.slice(0, 80) ||
       "Conversation";
 
-    const p = document.createElement("p");
+    const p =
+      document.createElement("p");
+
     p.textContent =
-      new Date(item.time).toLocaleString();
+      new Date(
+        item.time
+      ).toLocaleString();
 
-    row.append(title, p);
+    row.append(
+      title,
+      p
+    );
 
-    row.addEventListener("click", () => {
-      navigate("chat");
-      showToast("Conversation selected");
-    });
+    row.addEventListener(
+      "click",
+      () => {
 
-    list.appendChild(row);
+        navigate("chat");
+
+        showToast(
+          "Conversation selected"
+        );
+      }
+    );
+
+    list.appendChild(
+      row
+    );
   });
 }
 
-$("historySearch")?.addEventListener("input", function () {
-  const query = this.value.toLowerCase();
+function setupHistorySearch() {
 
-  document.querySelectorAll("#historyList .list-item")
-    .forEach(item => {
-      item.style.display =
-        item.textContent.toLowerCase().includes(query)
-          ? ""
-          : "none";
-    });
-});
+  $("historySearch")?.addEventListener(
+    "input",
+    function () {
+
+      const query =
+        this.value.toLowerCase();
+
+      document
+        .querySelectorAll(
+          "#historyList .list-item"
+        )
+        .forEach(item => {
+
+          item.style.display =
+            item.textContent
+              .toLowerCase()
+              .includes(query)
+              ? ""
+              : "none";
+        });
+    }
+  );
+}
 
 
 /* =========================
@@ -638,8 +899,20 @@ $("historySearch")?.addEventListener("input", function () {
 ========================= */
 
 function saveResponse(text) {
-  if (savedMessages.includes(text)) {
-    showToast("Already saved");
+
+  if (
+    savedMessages.some(
+      item =>
+        typeof item === "string"
+          ? item === text
+          : item.text === text
+    )
+  ) {
+
+    showToast(
+      "Already saved"
+    );
+
     return;
   }
 
@@ -650,52 +923,91 @@ function saveResponse(text) {
 
   localStorage.setItem(
     "novaSaved",
-    JSON.stringify(savedMessages)
+    JSON.stringify(
+      savedMessages
+    )
   );
 
   renderSaved();
-  showToast("Response saved");
+
+  showToast(
+    "Response saved"
+  );
 }
 
 function renderSaved() {
-  const list = $("savedList");
+
+  const list =
+    $("savedList");
+
   if (!list) return;
 
   list.innerHTML = "";
 
   if (!savedMessages.length) {
+
     list.innerHTML =
       `<div class="list-empty">No saved responses.</div>`;
+
     return;
   }
 
-  [...savedMessages].reverse().forEach(item => {
-    const row = document.createElement("div");
-    row.className = "list-item";
+  [...savedMessages]
+    .reverse()
+    .forEach(item => {
 
-    const text = document.createElement("p");
-    text.textContent = item.text;
+      const row =
+        document.createElement("div");
 
-    const remove = document.createElement("button");
-    remove.className = "secondary-btn";
-    remove.textContent = "Remove";
+      row.className =
+        "list-item";
 
-    remove.addEventListener("click", () => {
-      savedMessages = savedMessages.filter(
-        x => x !== item
+      const text =
+        document.createElement("p");
+
+      text.textContent =
+        typeof item === "string"
+          ? item
+          : item.text;
+
+      const remove =
+        document.createElement("button");
+
+      remove.className =
+        "secondary-btn";
+
+      remove.textContent =
+        "Remove";
+
+      remove.addEventListener(
+        "click",
+        () => {
+
+          savedMessages =
+            savedMessages.filter(
+              x => x !== item
+            );
+
+          localStorage.setItem(
+            "novaSaved",
+            JSON.stringify(
+              savedMessages
+            )
+          );
+
+          renderSaved();
+        }
       );
 
-      localStorage.setItem(
-        "novaSaved",
-        JSON.stringify(savedMessages)
+      row.append(
+        text,
+        remove
       );
 
-      renderSaved();
+      list.appendChild(
+        row
+      );
     });
-
-    row.append(text, remove);
-    list.appendChild(row);
-  });
 }
 
 
@@ -704,30 +1016,66 @@ function renderSaved() {
 ========================= */
 
 function setupSidebar() {
-  $("openSidebar")?.addEventListener("click", openMobileSidebar);
-  $("closeSidebar")?.addEventListener("click", closeMobileSidebar);
-  $("sidebarOverlay")?.addEventListener("click", closeMobileSidebar);
 
-  $("showSidebarBtn")?.addEventListener("click", showMenu);
+  $("openSidebar")?.addEventListener(
+    "click",
+    openMobileSidebar
+  );
+
+  $("closeSidebar")?.addEventListener(
+    "click",
+    closeMobileSidebar
+  );
+
+  $("sidebarOverlay")?.addEventListener(
+    "click",
+    closeMobileSidebar
+  );
+
+  $("showSidebarBtn")?.addEventListener(
+    "click",
+    showMenu
+  );
 }
 
 function openMobileSidebar() {
-  $("sidebar")?.classList.add("open");
-  $("sidebarOverlay")?.classList.add("open");
+
+  $("sidebar")?.classList.add(
+    "open"
+  );
+
+  $("sidebarOverlay")?.classList.add(
+    "open"
+  );
 }
 
 function closeMobileSidebar() {
-  $("sidebar")?.classList.remove("open");
-  $("sidebarOverlay")?.classList.remove("open");
+
+  $("sidebar")?.classList.remove(
+    "open"
+  );
+
+  $("sidebarOverlay")?.classList.remove(
+    "open"
+  );
 }
 
 function hideMenu() {
-  document.body.classList.add("menu-hidden");
-  showToast("Menu hidden");
+
+  document.body.classList.add(
+    "menu-hidden"
+  );
+
+  showToast(
+    "Menu hidden"
+  );
 }
 
 function showMenu() {
-  document.body.classList.remove("menu-hidden");
+
+  document.body.classList.remove(
+    "menu-hidden"
+  );
 }
 
 
@@ -736,39 +1084,86 @@ function showMenu() {
 ========================= */
 
 function setupProfile() {
-  $("accountBtn")?.addEventListener("click", openProfile);
-  $("topAvatar")?.addEventListener("click", openProfile);
 
-  $("editProfileBtn")?.addEventListener("click", openEditProfile);
+  $("accountBtn")?.addEventListener(
+    "click",
+    openProfile
+  );
 
-  $("profileSettingsBtn")?.addEventListener("click", () => {
-    closeModal("profileModal");
-    navigate("settings");
-  });
+  $("topAvatar")?.addEventListener(
+    "click",
+    openProfile
+  );
 
-  $("logoutBtn")?.addEventListener("click", logout);
+  $("editProfileBtn")?.addEventListener(
+    "click",
+    openEditProfile
+  );
+
+  $("profileSettingsBtn")?.addEventListener(
+    "click",
+    () => {
+
+      closeModal(
+        "profileModal"
+      );
+
+      navigate(
+        "settings"
+      );
+    }
+  );
+
+  $("logoutBtn")?.addEventListener(
+    "click",
+    logout
+  );
 
   $("saveProfileBtn")?.addEventListener(
     "click",
     saveProfile
   );
 
-  $("showProfilePassword")?.addEventListener("click", () => {
-    const input = $("profilePassword");
-    const button = $("showProfilePassword");
+  $("showProfilePassword")?.addEventListener(
+    "click",
+    () => {
 
-    if (input.type === "password") {
-      input.type = "text";
-      button.textContent = "HIDE";
-    } else {
-      input.type = "password";
-      button.textContent = "SHOW";
+      const input =
+        $("profilePassword");
+
+      const button =
+        $("showProfilePassword");
+
+      if (!input) return;
+
+      if (
+        input.type ===
+        "password"
+      ) {
+
+        input.type =
+          "text";
+
+        button.textContent =
+          "HIDE";
+
+      } else {
+
+        input.type =
+          "password";
+
+        button.textContent =
+          "SHOW";
+      }
     }
-  });
+  );
 
-  $("changeAvatarBtn")?.addEventListener("click", () => {
-    $("avatarInput")?.click();
-  });
+  $("changeAvatarBtn")?.addEventListener(
+    "click",
+    () => {
+      $("avatarInput")?.click();
+    }
+  );
 
   $("avatarInput")?.addEventListener(
     "change",
@@ -780,83 +1175,183 @@ function setupProfile() {
     removeAvatar
   );
 
-  document.querySelectorAll("[data-close]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      closeModal(btn.dataset.close);
+  document
+    .querySelectorAll("[data-close]")
+    .forEach(btn => {
+
+      btn.addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            btn.dataset.close
+          );
+        }
+      );
     });
-  });
 }
 
 function updateUserUI() {
+
   if (!currentUser) return;
 
-  const username = currentUser.username || "User";
-  const avatar = currentUser.avatar || "";
+  const username =
+    currentUser.username ||
+    "User";
 
-  $("sidebarUsername").textContent = username;
-  $("profileName").textContent = username;
-  $("profileUsername").textContent = username;
-  $("profileEmail").textContent = currentUser.email || "—";
+  const avatar =
+    currentUser.avatar ||
+    "";
+
+  $("sidebarUsername").textContent =
+    username;
+
+  $("profileName").textContent =
+    username;
+
+  $("profileUsername").textContent =
+    username;
+
+  $("profileEmail").textContent =
+    currentUser.email ||
+    "—";
 
   $("profileDate").textContent =
     currentUser.registered
-      ? new Date(currentUser.registered).toLocaleDateString()
+      ? new Date(
+          currentUser.registered
+        ).toLocaleDateString()
       : "—";
 
-  $("profilePassword").value =
-    currentUser.password || "";
+  if ($("profilePassword")) {
+    $("profilePassword").value =
+      currentUser.password ||
+      "";
+  }
 
-  setAvatar($("sidebarAvatar"), avatar, username);
-  setAvatar($("topAvatar"), avatar, username);
-  setAvatar($("profileAvatar"), avatar, username);
-  setAvatar($("editAvatar"), avatar, username);
+  setAvatar(
+    $("sidebarAvatar"),
+    avatar,
+    username
+  );
+
+  setAvatar(
+    $("topAvatar"),
+    avatar,
+    username
+  );
+
+  setAvatar(
+    $("profileAvatar"),
+    avatar,
+    username
+  );
+
+  setAvatar(
+    $("editAvatar"),
+    avatar,
+    username
+  );
 }
 
-function setAvatar(element, image, username) {
+function setAvatar(
+  element,
+  image,
+  username
+) {
+
   if (!element) return;
 
   element.innerHTML = "";
 
   if (image) {
-    const img = document.createElement("img");
+
+    const img =
+      document.createElement(
+        "img"
+      );
+
     img.src = image;
-    element.appendChild(img);
+
+    element.appendChild(
+      img
+    );
+
   } else {
+
     element.textContent =
-      (username || "N").charAt(0).toUpperCase();
+      (
+        username ||
+        "N"
+      )
+        .charAt(0)
+        .toUpperCase();
   }
 }
 
 function openProfile() {
+
   updateUserUI();
-  $("profileModal")?.classList.remove("hidden");
+
+  $("profileModal")?.classList.remove(
+    "hidden"
+  );
 }
 
 function openEditProfile() {
-  closeModal("profileModal");
 
-  $("editUsername").value =
-    currentUser?.username || "";
+  closeModal(
+    "profileModal"
+  );
 
-  $("editPassword").value = "";
-  $("editError").textContent = "";
-  $("editSuccess").textContent = "";
+  if ($("editUsername")) {
+    $("editUsername").value =
+      currentUser?.username ||
+      "";
+  }
 
-  $("editModal")?.classList.remove("hidden");
+  if ($("editPassword")) {
+    $("editPassword").value =
+      "";
+  }
+
+  if ($("editError")) {
+    $("editError").textContent =
+      "";
+  }
+
+  if ($("editSuccess")) {
+    $("editSuccess").textContent =
+      "";
+  }
+
+  $("editModal")?.classList.remove(
+    "hidden"
+  );
 }
 
 function saveProfile() {
+
   if (!currentUser) return;
 
   const username =
-    $("editUsername").value.trim();
+    $("editUsername")
+      .value
+      .trim();
 
   const newPassword =
-    $("editPassword").value;
+    $("editPassword")
+      .value;
 
-  if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+  if (
+    !/^[A-Za-z0-9_]{3,20}$/.test(
+      username
+    )
+  ) {
+
     $("editError").textContent =
       "Username must be 3–20 English letters, numbers or _.";
+
     return;
   }
 
@@ -864,100 +1359,160 @@ function saveProfile() {
     newPassword &&
     newPassword.length < 6
   ) {
+
     $("editError").textContent =
       "Password must contain at least 6 characters.";
+
     return;
   }
 
-  currentUser.username = username;
+  currentUser.username =
+    username;
 
   if (newPassword) {
-    currentUser.password = newPassword;
+    currentUser.password =
+      newPassword;
   }
 
   localStorage.setItem(
     "novaUser",
-    JSON.stringify(currentUser)
+    JSON.stringify(
+      currentUser
+    )
   );
 
   localStorage.setItem(
     "novaAccount",
-    JSON.stringify(currentUser)
+    JSON.stringify(
+      currentUser
+    )
   );
 
   $("editSuccess").textContent =
     "Profile updated.";
 
   updateUserUI();
-  showToast("Profile updated");
 
-  setTimeout(() => {
-    closeModal("editModal");
-  }, 700);
+  showToast(
+    "Profile updated"
+  );
+
+  setTimeout(
+    () => {
+      closeModal(
+        "editModal"
+      );
+    },
+    700
+  );
 }
 
 function changeAvatar(event) {
-  const file = event.target.files?.[0];
+
+  const file =
+    event.target.files?.[0];
+
   if (!file) return;
 
-  if (!file.type.startsWith("image/")) {
-    showToast("Please choose an image");
+  if (
+    !file.type.startsWith(
+      "image/"
+    )
+  ) {
+
+    showToast(
+      "Please choose an image"
+    );
+
     return;
   }
 
-  const reader = new FileReader();
+  const reader =
+    new FileReader();
 
   reader.onload = () => {
-    currentUser.avatar = reader.result;
+
+    currentUser.avatar =
+      reader.result;
 
     localStorage.setItem(
       "novaUser",
-      JSON.stringify(currentUser)
+      JSON.stringify(
+        currentUser
+      )
     );
 
     localStorage.setItem(
       "novaAccount",
-      JSON.stringify(currentUser)
+      JSON.stringify(
+        currentUser
+      )
     );
 
     updateUserUI();
-    showToast("Avatar changed");
+
+    showToast(
+      "Avatar changed"
+    );
   };
 
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(
+    file
+  );
 }
 
 function removeAvatar() {
+
   if (!currentUser) return;
 
-  currentUser.avatar = "";
+  currentUser.avatar =
+    "";
 
   localStorage.setItem(
     "novaUser",
-    JSON.stringify(currentUser)
+    JSON.stringify(
+      currentUser
+    )
   );
 
   localStorage.setItem(
     "novaAccount",
-    JSON.stringify(currentUser)
+    JSON.stringify(
+      currentUser
+    )
   );
 
   updateUserUI();
-  showToast("Avatar removed");
+
+  showToast(
+    "Avatar removed"
+  );
 }
 
 function logout() {
-  localStorage.removeItem("novaUser");
+
+  localStorage.removeItem(
+    "novaUser"
+  );
+
   currentUser = null;
 
-  closeModal("profileModal");
+  closeModal(
+    "profileModal"
+  );
+
   showAuth();
 
-  showToast("Logged out");
+  showToast(
+    "Logged out"
+  );
 }
 
 function closeModal(id) {
-  $(id)?.classList.add("hidden");
+
+  $(id)?.classList.add(
+    "hidden"
+  );
 }
 
 
@@ -966,76 +1521,149 @@ function closeModal(id) {
 ========================= */
 
 function setupSettings() {
-  $("themeSelect")?.addEventListener("change", e => {
-    settings.theme = e.target.value;
-    saveSettings();
-    applySettings();
-  });
 
-  $("accentSelect")?.addEventListener("change", e => {
-    settings.accent = e.target.value;
-    saveSettings();
-    applySettings();
-  });
+  $("themeSelect")?.addEventListener(
+    "change",
+    e => {
 
-  $("sizeSelect")?.addEventListener("change", e => {
-    settings.size = e.target.value;
-    saveSettings();
-    applySettings();
-  });
+      settings.theme =
+        e.target.value;
 
-  $("animationsToggle")?.addEventListener("change", e => {
-    settings.animations = e.target.checked;
-    saveSettings();
-    applySettings();
-  });
+      saveSettings();
+      applySettings();
+    }
+  );
 
-  $("soundToggle")?.addEventListener("change", e => {
-    settings.sound = e.target.checked;
-    saveSettings();
-  });
+  $("accentSelect")?.addEventListener(
+    "change",
+    e => {
 
-  $("enterSendToggle")?.addEventListener("change", e => {
-    settings.enterSend = e.target.checked;
-    saveSettings();
-  });
+      settings.accent =
+        e.target.value;
 
-  $("autoSaveToggle")?.addEventListener("change", e => {
-    settings.autoSave = e.target.checked;
-    saveSettings();
-  });
+      saveSettings();
+      applySettings();
+    }
+  );
 
-  $("compactChatToggle")?.addEventListener("change", e => {
-    settings.compact = e.target.checked;
-    saveSettings();
-    applySettings();
-  });
+  $("sizeSelect")?.addEventListener(
+    "change",
+    e => {
 
-  $("clearHistoryBtn")?.addEventListener("click", () => {
-    if (!confirm("Clear all chat history?")) return;
+      settings.size =
+        e.target.value;
 
-    chatMessages = [];
-    saveChats();
-    renderHistory();
-    showToast("History cleared");
-  });
+      saveSettings();
+      applySettings();
+    }
+  );
 
-  $("clearDataBtn")?.addEventListener("click", () => {
-    if (!confirm("Delete all NOVA data from this browser?")) return;
+  $("animationsToggle")?.addEventListener(
+    "change",
+    e => {
 
-    localStorage.clear();
-    location.reload();
-  });
+      settings.animations =
+        e.target.checked;
+
+      saveSettings();
+      applySettings();
+    }
+  );
+
+  $("soundToggle")?.addEventListener(
+    "change",
+    e => {
+
+      settings.sound =
+        e.target.checked;
+
+      saveSettings();
+    }
+  );
+
+  $("enterSendToggle")?.addEventListener(
+    "change",
+    e => {
+
+      settings.enterSend =
+        e.target.checked;
+
+      saveSettings();
+    }
+  );
+
+  $("autoSaveToggle")?.addEventListener(
+    "change",
+    e => {
+
+      settings.autoSave =
+        e.target.checked;
+
+      saveSettings();
+    }
+  );
+
+  $("compactChatToggle")?.addEventListener(
+    "change",
+    e => {
+
+      settings.compact =
+        e.target.checked;
+
+      saveSettings();
+      applySettings();
+    }
+  );
+
+  $("clearHistoryBtn")?.addEventListener(
+    "click",
+    () => {
+
+      if (
+        !confirm(
+          "Clear all chat history?"
+        )
+      ) return;
+
+      chatMessages = [];
+
+      saveChats();
+      renderHistory();
+
+      showToast(
+        "History cleared"
+      );
+    }
+  );
+
+  $("clearDataBtn")?.addEventListener(
+    "click",
+    () => {
+
+      if (
+        !confirm(
+          "Delete all NOVA data from this browser?"
+        )
+      ) return;
+
+      localStorage.clear();
+      location.reload();
+    }
+  );
 }
 
 function saveSettings() {
+
   localStorage.setItem(
     "novaSettings",
-    JSON.stringify(settings)
+    JSON.stringify(
+      settings
+    )
   );
 }
 
 function applySettings() {
+
   document.body.classList.toggle(
     "light",
     settings.theme === "light"
@@ -1051,12 +1679,24 @@ function applySettings() {
     "size-large"
   );
 
-  if (settings.size === "small") {
-    document.body.classList.add("size-small");
+  if (
+    settings.size ===
+    "small"
+  ) {
+
+    document.body.classList.add(
+      "size-small"
+    );
   }
 
-  if (settings.size === "large") {
-    document.body.classList.add("size-large");
+  if (
+    settings.size ===
+    "large"
+  ) {
+
+    document.body.classList.add(
+      "size-large"
+    );
   }
 
   const colors = {
@@ -1069,32 +1709,49 @@ function applySettings() {
 
   document.documentElement.style.setProperty(
     "--accent",
-    colors[settings.accent] || colors.blue
+    colors[settings.accent] ||
+      colors.blue
   );
 
-  if ($("themeSelect"))
-    $("themeSelect").value = settings.theme;
+  if ($("themeSelect")) {
+    $("themeSelect").value =
+      settings.theme;
+  }
 
-  if ($("accentSelect"))
-    $("accentSelect").value = settings.accent;
+  if ($("accentSelect")) {
+    $("accentSelect").value =
+      settings.accent;
+  }
 
-  if ($("sizeSelect"))
-    $("sizeSelect").value = settings.size;
+  if ($("sizeSelect")) {
+    $("sizeSelect").value =
+      settings.size;
+  }
 
-  if ($("animationsToggle"))
-    $("animationsToggle").checked = settings.animations;
+  if ($("animationsToggle")) {
+    $("animationsToggle").checked =
+      settings.animations;
+  }
 
-  if ($("soundToggle"))
-    $("soundToggle").checked = settings.sound;
+  if ($("soundToggle")) {
+    $("soundToggle").checked =
+      settings.sound;
+  }
 
-  if ($("enterSendToggle"))
-    $("enterSendToggle").checked = settings.enterSend;
+  if ($("enterSendToggle")) {
+    $("enterSendToggle").checked =
+      settings.enterSend;
+  }
 
-  if ($("autoSaveToggle"))
-    $("autoSaveToggle").checked = settings.autoSave;
+  if ($("autoSaveToggle")) {
+    $("autoSaveToggle").checked =
+      settings.autoSave;
+  }
 
-  if ($("compactChatToggle"))
-    $("compactChatToggle").checked = settings.compact;
+  if ($("compactChatToggle")) {
+    $("compactChatToggle").checked =
+      settings.compact;
+  }
 }
 
 
@@ -1103,15 +1760,22 @@ function applySettings() {
 ========================= */
 
 function setupFiles() {
-  $("uploadFileBtn")?.addEventListener("click", () => {
-    $("fileInput")?.click();
-  });
+
+  $("uploadFileBtn")?.addEventListener(
+    "click",
+    () => {
+      $("fileInput")?.click();
+    }
+  );
 }
 
 function handleFileUpload(event) {
-  const files = [...event.target.files];
+
+  const files =
+    [...event.target.files];
 
   files.forEach(file => {
+
     filesData.push({
       name: file.name,
       size: file.size,
@@ -1122,72 +1786,140 @@ function handleFileUpload(event) {
 
   localStorage.setItem(
     "novaFiles",
-    JSON.stringify(filesData)
+    JSON.stringify(
+      filesData
+    )
   );
 
   renderFiles();
+
   showToast(
     files.length === 1
       ? "File uploaded"
       : `${files.length} files uploaded`
   );
 
-  event.target.value = "";
+  event.target.value =
+    "";
 }
 
 function renderFiles() {
-  const list = $("filesList");
+
+  const list =
+    $("filesList");
+
   if (!list) return;
 
-  list.innerHTML = "";
+  list.innerHTML =
+    "";
 
   if (!filesData.length) {
+
     list.innerHTML =
       `<div class="list-empty">No files uploaded.</div>`;
+
     return;
   }
 
-  [...filesData].reverse().forEach(file => {
-    const row = document.createElement("div");
-    row.className = "list-item";
+  [...filesData]
+    .reverse()
+    .forEach(file => {
 
-    const title = document.createElement("strong");
-    title.textContent = file.name;
+      const row =
+        document.createElement(
+          "div"
+        );
 
-    const p = document.createElement("p");
-    p.textContent =
-      `${formatBytes(file.size)} • ${new Date(file.date).toLocaleDateString()}`;
+      row.className =
+        "list-item";
 
-    const remove = document.createElement("button");
-    remove.className = "danger-btn";
-    remove.textContent = "Remove";
+      const title =
+        document.createElement(
+          "strong"
+        );
 
-    remove.addEventListener("click", () => {
-      filesData = filesData.filter(x => x !== file);
+      title.textContent =
+        file.name;
 
-      localStorage.setItem(
-        "novaFiles",
-        JSON.stringify(filesData)
+      const p =
+        document.createElement(
+          "p"
+        );
+
+      p.textContent =
+        `${formatBytes(file.size)} • ${new Date(file.date).toLocaleDateString()}`;
+
+      const remove =
+        document.createElement(
+          "button"
+        );
+
+      remove.className =
+        "danger-btn";
+
+      remove.textContent =
+        "Remove";
+
+      remove.addEventListener(
+        "click",
+        () => {
+
+          filesData =
+            filesData.filter(
+              x => x !== file
+            );
+
+          localStorage.setItem(
+            "novaFiles",
+            JSON.stringify(
+              filesData
+            )
+          );
+
+          renderFiles();
+        }
       );
 
-      renderFiles();
-    });
+      row.append(
+        title,
+        p,
+        remove
+      );
 
-    row.append(title, p, remove);
-    list.appendChild(row);
-  });
+      list.appendChild(
+        row
+      );
+    });
 }
 
 function formatBytes(bytes) {
+
   if (!bytes) return "0 B";
 
-  const units = ["B", "KB", "MB", "GB"];
+  const units = [
+    "B",
+    "KB",
+    "MB",
+    "GB"
+  ];
+
   const index =
-    Math.floor(Math.log(bytes) / Math.log(1024));
+    Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
+    );
 
   return (
-    (bytes / Math.pow(1024, index)).toFixed(
-      index === 0 ? 0 : 1
+    (
+      bytes /
+      Math.pow(
+        1024,
+        index
+      )
+    ).toFixed(
+      index === 0
+        ? 0
+        : 1
     ) +
     " " +
     units[index]
@@ -1196,99 +1928,218 @@ function formatBytes(bytes) {
 
 
 /* =========================
-   VOICE
+   VOICE INPUT
 ========================= */
-
-/* ---------- VOICE INPUT ---------- */
-
-/* ---------- VOICE ---------- */
 
 let recognition = null;
 let isListening = false;
 
-const SpeechRecognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
+function setupVoice() {
 
-if (SpeechRecognition) {
-  recognition = new SpeechRecognition();
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-  recognition.lang = "ru-RU";
-  recognition.interimResults = false;
-  recognition.continuous = false;
+  const voiceButton =
+    $("voiceBtn");
+
+  if (!voiceButton) {
+    console.warn(
+      "NOVA: voiceBtn not found."
+    );
+    return;
+  }
+
+  if (!SpeechRecognition) {
+
+    voiceButton.addEventListener(
+      "click",
+      () => {
+        showToast(
+          "❌ Этот браузер не поддерживает голосовой ввод"
+        );
+      }
+    );
+
+    return;
+  }
+
+  recognition =
+    new SpeechRecognition();
+
+  recognition.lang =
+    "ru-RU";
+
+  recognition.interimResults =
+    false;
+
+  recognition.continuous =
+    false;
 
   recognition.onstart = () => {
+
     isListening = true;
 
-    $("voiceBtn").classList.add("listening");
-    $("aiStatus").innerHTML = "<i></i>Listening...";
+    voiceButton.classList.add(
+      "listening"
+    );
 
-    toast("🎙 Говори...");
+    setAIStatus(
+      "Listening...",
+      false
+    );
+
+    showToast(
+      "🎙 Говори..."
+    );
   };
 
-  recognition.onresult = event => {
-    const text =
-      event.results[0][0].transcript;
+  recognition.onresult =
+    event => {
 
-    if (!text || !text.trim()) return;
+      const text =
+        event
+          ?.results
+          ?.[0]
+          ?.[0]
+          ?.transcript;
 
-    const input = $("chatInput");
+      if (
+        !text ||
+        !text.trim()
+      ) {
+        return;
+      }
 
-    if (input.value.trim()) {
-      input.value += " " + text;
-    } else {
-      input.value = text;
+      const input =
+        $("chatInput");
+
+      if (!input) return;
+
+      if (
+        input.value.trim()
+      ) {
+
+        input.value +=
+          " " + text;
+
+      } else {
+
+        input.value =
+          text;
+      }
+
+      autoResize();
+    };
+
+  recognition.onerror =
+    event => {
+
+      console.error(
+        "NOVA Voice error:",
+        event.error
+      );
+
+      isListening = false;
+
+      voiceButton.classList.remove(
+        "listening"
+      );
+
+      setAIStatus(
+        "NOVA is ready",
+        false
+      );
+
+      if (
+        event.error ===
+        "not-allowed"
+      ) {
+
+        showToast(
+          "❌ Разреши доступ к микрофону"
+        );
+
+      } else if (
+        event.error ===
+        "no-speech"
+      ) {
+
+        showToast(
+          "😭 Я ничего не услышал"
+        );
+
+      } else if (
+        event.error ===
+        "audio-capture"
+      ) {
+
+        showToast(
+          "❌ Микрофон недоступен"
+        );
+
+      } else {
+
+        showToast(
+          "❌ Ошибка микрофона: " +
+          event.error
+        );
+      }
+    };
+
+  recognition.onend =
+    () => {
+
+      isListening = false;
+
+      voiceButton.classList.remove(
+        "listening"
+      );
+
+      setAIStatus(
+        "NOVA is ready",
+        false
+      );
+    };
+
+  voiceButton.addEventListener(
+    "click",
+    () => {
+
+      if (!recognition) {
+
+        showToast(
+          "❌ Микрофон не поддерживается"
+        );
+
+        return;
+      }
+
+      if (isListening) {
+
+        recognition.stop();
+
+        return;
+      }
+
+      try {
+
+        recognition.start();
+
+      } catch (error) {
+
+        console.error(
+          "NOVA Voice start error:",
+          error
+        );
+
+        showToast(
+          "❌ Не удалось запустить микрофон"
+        );
+      }
     }
-
-    autoResize();
-  };
-
-  recognition.onerror = event => {
-    console.error("Voice error:", event.error);
-
-    isListening = false;
-
-    $("voiceBtn").classList.remove("listening");
-    $("aiStatus").innerHTML =
-      "<i></i>NOVA is ready";
-
-    if (event.error === "not-allowed") {
-      toast("❌ Разреши доступ к микрофону");
-    } else if (event.error === "no-speech") {
-      toast("😭 Я ничего не услышал");
-    } else {
-      toast("❌ Ошибка микрофона: " + event.error);
-    }
-  };
-
-  recognition.onend = () => {
-    isListening = false;
-
-    $("voiceBtn").classList.remove("listening");
-    $("aiStatus").innerHTML =
-      "<i></i>NOVA is ready";
-  };
+  );
 }
-
-$("voiceBtn").addEventListener("click", () => {
-
-  if (!recognition) {
-    toast("❌ Этот браузер не поддерживает микрофон");
-    return;
-  }
-
-  if (isListening) {
-    recognition.stop();
-    return;
-  }
-
-  try {
-    recognition.start();
-  } catch (error) {
-    console.error("Voice start error:", error);
-    toast("❌ Не удалось запустить микрофон");
-  }
-});
 
 
 /* =========================
@@ -1296,16 +2147,41 @@ $("voiceBtn").addEventListener("click", () => {
 ========================= */
 
 function showToast(text) {
-  const container = $("toastContainer");
+
+  const container =
+    $("toastContainer");
+
   if (!container) return;
 
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.textContent = text;
+  const toast =
+    document.createElement(
+      "div"
+    );
 
-  container.appendChild(toast);
+  toast.className =
+    "toast";
 
-  setTimeout(() => {
-    toast.remove();
-  }, 2200);
+  toast.textContent =
+    text;
+
+  container.appendChild(
+    toast
+  );
+
+  setTimeout(
+    () => {
+      toast.remove();
+    },
+    2200
+  );
 }
+
+
+/* =========================
+   HISTORY SEARCH
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  setupHistorySearch
+);
