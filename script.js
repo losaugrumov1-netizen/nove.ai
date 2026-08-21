@@ -1211,31 +1211,50 @@ function startVoiceInput() {
 
   const recognition = new SpeechRecognition();
 
-  recognition.lang = "en-US";
+  recognition.lang = "ru-RU";
   recognition.interimResults = false;
+  recognition.continuous = false;
 
   const button = $("voiceBtn");
 
   button.classList.add("listening");
 
-  recognition.start();
+  recognition.onstart = () => {
+    showToast("🎙 Слушаю...");
+  };
 
   recognition.onresult = event => {
-    const text =
-      event.results[0][0].transcript;
+    const text = event.results[0][0].transcript;
 
-    $("chatInput").value +=
-      ($("chatInput").value ? " " : "") + text;
+    const input = $("chatInput");
+
+    if (input.value.trim()) {
+      input.value += " " + text;
+    } else {
+      input.value = text;
+    }
 
     autoResize();
   };
 
-  recognition.onerror = () => {
-    showToast("Voice input error");
+  recognition.onerror = event => {
+    console.error("Voice error:", event.error);
+    showToast("Voice input error: " + event.error);
+    button.classList.remove("listening");
   };
 
   recognition.onend = () => {
     button.classList.remove("listening");
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    console.error("Voice start error:", error);
+    button.classList.remove("listening");
+    showToast("Не удалось запустить микрофон");
+  }
+}
   };
 }
 
