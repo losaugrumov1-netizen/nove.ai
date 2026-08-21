@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
+console.log("ROOT:", __dirname);
+console.log("INDEX:", path.join(__dirname, "index.html"));
+
 // Отдаём весь сайт из корня проекта
 app.use(express.static(__dirname));
 
