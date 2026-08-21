@@ -1199,61 +1199,88 @@ function formatBytes(bytes) {
    VOICE
 ========================= */
 
-function startVoiceInput() {
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+/* ---------- VOICE INPUT ---------- */
 
-  if (!SpeechRecognition) {
-    showToast("Voice input is not supported here.");
-    return;
-  }
+let recognition = null;
+let isListening = false;
 
-  const recognition = new SpeechRecognition();
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
 
   recognition.lang = "ru-RU";
   recognition.interimResults = false;
   recognition.continuous = false;
 
-  const button = $("voiceBtn");
-
-  button.classList.add("listening");
-
   recognition.onstart = () => {
-    showToast("🎙 Слушаю...");
+    isListening = true;
+    $("voiceBtn").classList.add("listening");
+    $("aiStatus").innerHTML = "<i></i>Listening...";
+    toast("🎙 Говори...");
   };
 
-  recognition.onresult = event => {
-    const text = event.results[0][0].transcript;
+  recognition.onresult = (event) => {
+    const text =
+      event.results[0][0].transcript;
 
-    const input = $("chatInput");
+    if (text && text.trim()) {
+      const input = $("chatInput");
 
-    if (input.value.trim()) {
-      input.value += " " + text;
+      if (input.value.trim()) {
+        input.value += " " + text;
+      } else {
+        input.value = text;
+      }
+
+      autoResize();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Voice error:", event.error);
+
+    if (event.error === "not-allowed") {
+      toast("Разреши NOVA доступ к микрофону");
+    } else if (event.error === "no-speech") {
+      toast("Я ничего не услышал 😭");
     } else {
-      input.value = text;
+      toast("Ошибка микрофона");
     }
 
-    autoResize();
-  };
-
-  recognition.onerror = event => {
-    console.error("Voice error:", event.error);
-    showToast("Voice input error: " + event.error);
-    button.classList.remove("listening");
+    isListening = false;
+    $("voiceBtn").classList.remove("listening");
+    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
   };
 
   recognition.onend = () => {
-    button.classList.remove("listening");
+    isListening = false;
+    $("voiceBtn").classList.remove("listening");
+    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
   };
+}
+
+$("voiceBtn").addEventListener("click", () => {
+
+  if (!recognition) {
+    toast("Микрофон не поддерживается этим браузером");
+    return;
+  }
+
+  if (isListening) {
+    recognition.stop();
+    return;
+  }
 
   try {
     recognition.start();
   } catch (error) {
-    console.error("Voice start error:", error);
-    button.classList.remove("listening");
-    showToast("Не удалось запустить микрофон");
+    console.error(error);
+    toast("Не удалось запустить микрофон");
   }
+});
 }
   };
 }
