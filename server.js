@@ -14,20 +14,10 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// =========================
-// FRONTEND
-// =========================
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
+// Отдаём весь сайт из корня проекта
 app.use(express.static(__dirname));
 
-// =========================
-// STATUS
-// =========================
-
+// API status
 app.get("/api/status", (req, res) => {
   res.json({
     status: "online",
@@ -36,18 +26,12 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-// =========================
-// OPENAI
-// =========================
-
+// OpenAI
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// =========================
-// AI CHAT
-// =========================
-
+// AI Chat
 app.post("/api/chat", async (req, res) => {
   try {
     const { message, history = [] } = req.body;
@@ -83,9 +67,7 @@ app.post("/api/chat", async (req, res) => {
     });
 
     res.json({
-      reply:
-        response.output_text ||
-        "NOVA couldn't generate a response."
+      reply: response.output_text || "NOVA couldn't generate a response."
     });
 
   } catch (error) {
@@ -96,10 +78,6 @@ app.post("/api/chat", async (req, res) => {
     });
   }
 });
-
-// =========================
-// START
-// =========================
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`NOVA AI server running on port ${PORT}`);
