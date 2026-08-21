@@ -1201,6 +1201,8 @@ function formatBytes(bytes) {
 
 /* ---------- VOICE INPUT ---------- */
 
+/* ---------- VOICE ---------- */
+
 let recognition = null;
 let isListening = false;
 
@@ -1217,55 +1219,61 @@ if (SpeechRecognition) {
 
   recognition.onstart = () => {
     isListening = true;
+
     $("voiceBtn").classList.add("listening");
     $("aiStatus").innerHTML = "<i></i>Listening...";
+
     toast("🎙 Говори...");
   };
 
-  recognition.onresult = (event) => {
+  recognition.onresult = event => {
     const text =
       event.results[0][0].transcript;
 
-    if (text && text.trim()) {
-      const input = $("chatInput");
+    if (!text || !text.trim()) return;
 
-      if (input.value.trim()) {
-        input.value += " " + text;
-      } else {
-        input.value = text;
-      }
+    const input = $("chatInput");
 
-      autoResize();
+    if (input.value.trim()) {
+      input.value += " " + text;
+    } else {
+      input.value = text;
     }
+
+    autoResize();
   };
 
-  recognition.onerror = (event) => {
+  recognition.onerror = event => {
     console.error("Voice error:", event.error);
 
-    if (event.error === "not-allowed") {
-      toast("Разреши NOVA доступ к микрофону");
-    } else if (event.error === "no-speech") {
-      toast("Я ничего не услышал 😭");
-    } else {
-      toast("Ошибка микрофона");
-    }
-
     isListening = false;
+
     $("voiceBtn").classList.remove("listening");
-    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
+    $("aiStatus").innerHTML =
+      "<i></i>NOVA is ready";
+
+    if (event.error === "not-allowed") {
+      toast("❌ Разреши доступ к микрофону");
+    } else if (event.error === "no-speech") {
+      toast("😭 Я ничего не услышал");
+    } else {
+      toast("❌ Ошибка микрофона: " + event.error);
+    }
   };
 
   recognition.onend = () => {
     isListening = false;
+
     $("voiceBtn").classList.remove("listening");
-    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
+    $("aiStatus").innerHTML =
+      "<i></i>NOVA is ready";
   };
 }
 
 $("voiceBtn").addEventListener("click", () => {
 
   if (!recognition) {
-    toast("Микрофон не поддерживается этим браузером");
+    toast("❌ Этот браузер не поддерживает микрофон");
     return;
   }
 
@@ -1277,8 +1285,8 @@ $("voiceBtn").addEventListener("click", () => {
   try {
     recognition.start();
   } catch (error) {
-    console.error(error);
-    toast("Не удалось запустить микрофон");
+    console.error("Voice start error:", error);
+    toast("❌ Не удалось запустить микрофон");
   }
 });
 
