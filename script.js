@@ -31,6 +31,7 @@ let settings = {
 
 document.addEventListener("DOMContentLoaded", () => {
   applySettings();
+
   setupAuth();
   setupNavigation();
   setupChat();
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSettings();
   setupFiles();
   setupVoice();
+  setupHistorySearch();
 
   renderHistory();
   renderSaved();
@@ -60,47 +62,84 @@ function setupAuth() {
   $("authForm")?.addEventListener("submit", handleAuth);
 
   $("switchAuth")?.addEventListener("click", () => {
-    authMode = authMode === "register" ? "login" : "register";
+    authMode =
+      authMode === "register"
+        ? "login"
+        : "register";
+
     updateAuthMode();
   });
 
   $("togglePassword")?.addEventListener("click", () => {
-    togglePasswordField("password", "togglePassword");
+    togglePasswordField(
+      "password",
+      "togglePassword"
+    );
   });
 
   $("toggleConfirmPassword")?.addEventListener("click", () => {
-    togglePasswordField("confirmPassword", "toggleConfirmPassword");
+    togglePasswordField(
+      "confirmPassword",
+      "toggleConfirmPassword"
+    );
   });
 
   $("toggleEditPassword")?.addEventListener("click", () => {
-    togglePasswordField("editPassword", "toggleEditPassword");
+    togglePasswordField(
+      "editPassword",
+      "toggleEditPassword"
+    );
   });
 
-  $("password")?.addEventListener("input", updateStrength);
+  $("password")?.addEventListener(
+    "input",
+    updateStrength
+  );
 }
 
 function updateAuthMode() {
-  const register = authMode === "register";
+  const register =
+    authMode === "register";
 
-  $("authTitle").textContent = register ? "Create account" : "Welcome back";
+  if ($("authTitle")) {
+    $("authTitle").textContent =
+      register
+        ? "Create account"
+        : "Welcome back";
+  }
 
-  $("authSubtitle").textContent = register
-    ? "Create your NOVA account to continue."
-    : "Login to continue to your NOVA workspace.";
+  if ($("authSubtitle")) {
+    $("authSubtitle").textContent =
+      register
+        ? "Create your NOVA account to continue."
+        : "Login to continue to your NOVA workspace.";
+  }
 
-  $("authButton").textContent = register
-    ? "CREATE ACCOUNT"
-    : "LOGIN";
+  if ($("authButton")) {
+    $("authButton").textContent =
+      register
+        ? "CREATE ACCOUNT"
+        : "LOGIN";
+  }
 
-  $("switchText").textContent = register
-    ? "Already have an account?"
-    : "Don't have an account?";
+  if ($("switchText")) {
+    $("switchText").textContent =
+      register
+        ? "Already have an account?"
+        : "Don't have an account?";
+  }
 
-  $("switchAuth").textContent = register
-    ? "Login"
-    : "Create account";
+  if ($("switchAuth")) {
+    $("switchAuth").textContent =
+      register
+        ? "Login"
+        : "Create account";
+  }
 
-  $("confirmBox").style.display = register ? "" : "none";
+  if ($("confirmBox")) {
+    $("confirmBox").style.display =
+      register ? "" : "none";
+  }
 
   clearErrors();
 }
@@ -110,10 +149,17 @@ function handleAuth(event) {
 
   clearErrors();
 
-  const username = $("username").value.trim();
-  const email = $("email").value.trim().toLowerCase();
-  const password = $("password").value;
-  const confirm = $("confirmPassword").value;
+  const username =
+    $("username")?.value.trim() || "";
+
+  const email =
+    $("email")?.value.trim().toLowerCase() || "";
+
+  const password =
+    $("password")?.value || "";
+
+  const confirm =
+    $("confirmPassword")?.value || "";
 
   let valid = true;
 
@@ -122,11 +168,16 @@ function handleAuth(event) {
       "username",
       "Username must be 3–20 English letters, numbers or _."
     );
+
     valid = false;
   }
 
   if (!email.endsWith("@gmail.com")) {
-    showError("email", "Enter a valid Gmail address.");
+    showError(
+      "email",
+      "Enter a valid Gmail address."
+    );
+
     valid = false;
   }
 
@@ -135,27 +186,39 @@ function handleAuth(event) {
       "password",
       "Password must contain at least 6 characters."
     );
+
     valid = false;
   }
 
-  if (authMode === "register" && password !== confirm) {
-    showError("confirm", "Passwords do not match.");
+  if (
+    authMode === "register" &&
+    password !== confirm
+  ) {
+    showError(
+      "confirm",
+      "Passwords do not match."
+    );
+
     valid = false;
   }
 
   if (!valid) return;
 
-  const stored = JSON.parse(
-    localStorage.getItem("novaAccount") || "null"
-  );
+  const stored =
+    JSON.parse(
+      localStorage.getItem("novaAccount") || "null"
+    );
 
   if (authMode === "register") {
+
     if (stored) {
+
       if (stored.username === username) {
         showError(
           "username",
           "This username is already registered."
         );
+
         return;
       }
 
@@ -164,6 +227,7 @@ function handleAuth(event) {
           "email",
           "This Gmail is already registered."
         );
+
         return;
       }
     }
@@ -189,6 +253,7 @@ function handleAuth(event) {
     );
 
     showToast("Account created");
+
     showApp();
 
   } else {
@@ -198,6 +263,7 @@ function handleAuth(event) {
         "username",
         "No account found. Create an account first."
       );
+
       return;
     }
 
@@ -205,6 +271,7 @@ function handleAuth(event) {
       stored.username !== username ||
       stored.email !== email
     ) {
+
       showError(
         "username",
         "Username or Gmail is incorrect."
@@ -223,6 +290,7 @@ function handleAuth(event) {
         "password",
         "Incorrect password."
       );
+
       return;
     }
 
@@ -234,16 +302,33 @@ function handleAuth(event) {
     );
 
     showToast("Welcome back");
+
     showApp();
   }
 }
 
 function showError(type, message) {
+
   const map = {
-    username: ["username", "usernameError"],
-    email: ["email", "emailError"],
-    password: ["password", "passwordError"],
-    confirm: ["confirmPassword", "confirmError"]
+    username: [
+      "username",
+      "usernameError"
+    ],
+
+    email: [
+      "email",
+      "emailError"
+    ],
+
+    password: [
+      "password",
+      "passwordError"
+    ],
+
+    confirm: [
+      "confirmPassword",
+      "confirmError"
+    ]
   };
 
   const ids = map[type];
@@ -253,9 +338,9 @@ function showError(type, message) {
   const input = $(ids[0]);
   const error = $(ids[1]);
 
-  if (input) {
-    input.classList.add("input-error");
-  }
+  input?.classList.add(
+    "input-error"
+  );
 
   if (error) {
     error.textContent = message;
@@ -263,22 +348,34 @@ function showError(type, message) {
 }
 
 function clearErrors() {
-  document.querySelectorAll("small").forEach(el => {
-    el.textContent = "";
-  });
 
-  document.querySelectorAll("input").forEach(el => {
-    el.classList.remove("input-error");
-  });
+  document
+    .querySelectorAll("small")
+    .forEach(el => {
+      el.textContent = "";
+    });
+
+  document
+    .querySelectorAll("input")
+    .forEach(el => {
+      el.classList.remove(
+        "input-error"
+      );
+    });
 }
 
-function togglePasswordField(inputId, buttonId) {
+function togglePasswordField(
+  inputId,
+  buttonId
+) {
+
   const input = $(inputId);
   const button = $(buttonId);
 
   if (!input) return;
 
   if (input.type === "password") {
+
     input.type = "text";
 
     if (button) {
@@ -296,32 +393,61 @@ function togglePasswordField(inputId, buttonId) {
 }
 
 function updateStrength() {
-  const password = $("password")?.value || "";
-  const bar = $("strengthBar");
+
+  const password =
+    $("password")?.value || "";
+
+  const bar =
+    $("strengthBar");
 
   if (!bar) return;
 
   let width = 0;
 
-  if (password.length >= 6) width = 35;
-  if (password.length >= 8) width = 60;
-  if (/[A-Z]/.test(password)) width += 15;
-  if (/[0-9]/.test(password)) width += 15;
-  if (/[^A-Za-z0-9]/.test(password)) width += 10;
+  if (password.length >= 6)
+    width = 35;
 
-  width = Math.min(width, 100);
+  if (password.length >= 8)
+    width = 60;
 
-  bar.style.width = width + "%";
+  if (/[A-Z]/.test(password))
+    width += 15;
+
+  if (/[0-9]/.test(password))
+    width += 15;
+
+  if (/[^A-Za-z0-9]/.test(password))
+    width += 10;
+
+  width = Math.min(
+    width,
+    100
+  );
+
+  bar.style.width =
+    width + "%";
 }
 
 function showAuth() {
-  $("authScreen")?.classList.remove("hidden");
-  $("app")?.classList.add("hidden");
+
+  $("authScreen")?.classList.remove(
+    "hidden"
+  );
+
+  $("app")?.classList.add(
+    "hidden"
+  );
 }
 
 function showApp() {
-  $("authScreen")?.classList.add("hidden");
-  $("app")?.classList.remove("hidden");
+
+  $("authScreen")?.classList.add(
+    "hidden"
+  );
+
+  $("app")?.classList.remove(
+    "hidden"
+  );
 
   updateUserUI();
 }
@@ -332,33 +458,75 @@ function showApp() {
 ========================= */
 
 const pageNames = {
-  home: ["Home", "Your personal AI workspace"],
-  chat: ["AI Chat", "Talk with NOVA"],
-  history: ["History", "Previous NOVA conversations"],
-  saved: ["Saved", "Responses you decided to keep"],
-  files: ["Files", "Your uploaded files"],
-  settings: ["Settings", "Configure your NOVA workspace"],
-  about: ["About", "Learn more about NOVA"]
+
+  home: [
+    "Home",
+    "Your personal AI workspace"
+  ],
+
+  chat: [
+    "AI Chat",
+    "Talk with NOVA"
+  ],
+
+  history: [
+    "History",
+    "Previous NOVA conversations"
+  ],
+
+  saved: [
+    "Saved",
+    "Responses you decided to keep"
+  ],
+
+  files: [
+    "Files",
+    "Your uploaded files"
+  ],
+
+  settings: [
+    "Settings",
+    "Configure your NOVA workspace"
+  ],
+
+  about: [
+    "About",
+    "Learn more about NOVA"
+  ]
 };
 
 function setupNavigation() {
 
-  document.querySelectorAll(".nav-item").forEach(button => {
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(button => {
 
-    button.addEventListener("click", () => {
-      navigate(button.dataset.page);
-      closeMobileSidebar();
+      button.addEventListener(
+        "click",
+        () => {
+
+          navigate(
+            button.dataset.page
+          );
+
+          closeMobileSidebar();
+        }
+      );
     });
 
-  });
+  document
+    .querySelectorAll(".quick-card")
+    .forEach(button => {
 
-  document.querySelectorAll(".quick-card").forEach(button => {
-
-    button.addEventListener("click", () => {
-      navigate(button.dataset.quick);
+      button.addEventListener(
+        "click",
+        () => {
+          navigate(
+            button.dataset.quick
+          );
+        }
+      );
     });
-
-  });
 
   $("startChatBtn")?.addEventListener(
     "click",
@@ -368,7 +536,9 @@ function setupNavigation() {
   $("newChatBtn")?.addEventListener(
     "click",
     () => {
+
       startNewChat();
+
       navigate("chat");
     }
   );
@@ -376,48 +546,63 @@ function setupNavigation() {
 
 function navigate(page) {
 
-  document.querySelectorAll(".page").forEach(el => {
-    el.classList.remove("active");
-  });
+  document
+    .querySelectorAll(".page")
+    .forEach(el => {
+      el.classList.remove(
+        "active"
+      );
+    });
 
-  document.querySelectorAll(".nav-item").forEach(el => {
-    el.classList.remove("active");
-  });
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(el => {
+      el.classList.remove(
+        "active"
+      );
+    });
 
-  const target = $("page-" + page);
+  const target =
+    $("page-" + page);
 
   if (target) {
-    target.classList.add("active");
+    target.classList.add(
+      "active"
+    );
   }
 
-  const nav = document.querySelector(
-    `.nav-item[data-page="${page}"]`
-  );
+  const nav =
+    document.querySelector(
+      `.nav-item[data-page="${page}"]`
+    );
 
   if (nav) {
-    nav.classList.add("active");
+    nav.classList.add(
+      "active"
+    );
   }
 
   if (pageNames[page]) {
 
-    $("pageTitle").textContent =
-      pageNames[page][0];
+    if ($("pageTitle")) {
+      $("pageTitle").textContent =
+        pageNames[page][0];
+    }
 
-    $("pageSubtitle").textContent =
-      pageNames[page][1];
+    if ($("pageSubtitle")) {
+      $("pageSubtitle").textContent =
+        pageNames[page][1];
+    }
   }
 
-  if (page === "history") {
+  if (page === "history")
     renderHistory();
-  }
 
-  if (page === "saved") {
+  if (page === "saved")
     renderSaved();
-  }
 
-  if (page === "files") {
+  if (page === "files")
     renderFiles();
-  }
 }
 
 
@@ -441,10 +626,11 @@ function setupChat() {
         !event.shiftKey &&
         settings.enterSend
       ) {
+
         event.preventDefault();
+
         sendMessage();
       }
-
     }
   );
 
@@ -463,18 +649,26 @@ function setupChat() {
     hideMenu
   );
 
-  document.querySelectorAll(".suggestion").forEach(button => {
+  document
+    .querySelectorAll(".suggestion")
+    .forEach(button => {
 
-    button.addEventListener("click", () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-      $("chatInput").value =
-        button.dataset.suggestion;
+          if ($("chatInput")) {
 
-      autoResize();
-      sendMessage();
+            $("chatInput").value =
+              button.dataset.suggestion || "";
+
+            autoResize();
+
+            sendMessage();
+          }
+        }
+      );
     });
-
-  });
 
   $("attachBtn")?.addEventListener(
     "click",
@@ -491,23 +685,30 @@ function setupChat() {
 
 function autoResize() {
 
-  const input = $("chatInput");
+  const input =
+    $("chatInput");
 
   if (!input) return;
 
-  input.style.height = "auto";
+  input.style.height =
+    "auto";
 
   input.style.height =
-    Math.min(input.scrollHeight, 120) + "px";
+    Math.min(
+      input.scrollHeight,
+      120
+    ) + "px";
 }
 
 async function sendMessage() {
 
-  const input = $("chatInput");
+  const input =
+    $("chatInput");
 
   if (!input) return;
 
-  const text = input.value.trim();
+  const text =
+    input.value.trim();
 
   if (!text) return;
 
@@ -517,7 +718,10 @@ async function sendMessage() {
 
   $("welcomeChat")?.remove();
 
-  addMessage(text, "user");
+  addMessage(
+    text,
+    "user"
+  );
 
   chatMessages.push({
     role: "user",
@@ -525,9 +729,8 @@ async function sendMessage() {
     time: Date.now()
   });
 
-  if (settings.autoSave) {
+  if (settings.autoSave)
     saveChats();
-  }
 
   setAIStatus(
     "NOVA is thinking...",
@@ -535,31 +738,38 @@ async function sendMessage() {
   );
 
   const typing =
-    addMessage("Thinking...", "ai");
+    addMessage(
+      "Thinking...",
+      "ai"
+    );
 
   try {
 
-    const response = await fetch(
-      API_URL + "/api/chat",
-      {
-        method: "POST",
+    const response =
+      await fetch(
+        API_URL + "/api/chat",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        body: JSON.stringify({
-          message: text,
+          body: JSON.stringify({
 
-          history: chatMessages
-            .slice(-12)
-            .map(m => ({
-              role: m.role,
-              content: m.content
-            }))
-        })
-      }
-    );
+            message: text,
+
+            history:
+              chatMessages
+                .slice(-12)
+                .map(m => ({
+                  role: m.role,
+                  content: m.content
+                }))
+          })
+        }
+      );
 
     if (!response.ok) {
       throw new Error(
@@ -590,9 +800,8 @@ async function sendMessage() {
       time: Date.now()
     });
 
-    if (settings.autoSave) {
+    if (settings.autoSave)
       saveChats();
-    }
 
   } catch (error) {
 
@@ -603,7 +812,10 @@ async function sendMessage() {
       "ai"
     );
 
-    console.error(error);
+    console.error(
+      "CHAT ERROR:",
+      error
+    );
   }
 
   setAIStatus(
@@ -612,36 +824,51 @@ async function sendMessage() {
   );
 }
 
-function addMessage(text, type) {
+function addMessage(
+  text,
+  type
+) {
 
   const container =
     $("chatMessages");
 
-  if (!container) return null;
+  if (!container)
+    return null;
 
   const message =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   message.className =
     "message " + type;
 
   const content =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
-  content.textContent = text;
+  content.textContent =
+    text;
 
-  message.appendChild(content);
+  message.appendChild(
+    content
+  );
 
   if (type === "ai") {
 
     const actions =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     actions.className =
       "message-actions";
 
     const save =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
     save.textContent =
       "☆ Save";
@@ -658,7 +885,9 @@ function addMessage(text, type) {
     );
 
     const copy =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
     copy.textContent =
       "Copy";
@@ -669,14 +898,19 @@ function addMessage(text, type) {
 
         try {
 
-          await navigator.clipboard
+          await navigator
+            .clipboard
             .writeText(text);
 
-          showToast("Copied");
+          showToast(
+            "Copied"
+          );
 
         } catch {
 
-          showToast("Copy failed");
+          showToast(
+            "Copy failed"
+          );
         }
       }
     );
@@ -696,8 +930,10 @@ function addMessage(text, type) {
   );
 
   container.scrollTo({
-    top: container.scrollHeight,
-    behavior: "smooth"
+    top:
+      container.scrollHeight,
+    behavior:
+      "smooth"
   });
 
   return message;
@@ -717,17 +953,16 @@ function setAIStatus(
     `<i></i>${text}`;
 
   const dot =
-    status.querySelector("i");
+    status.querySelector(
+      "i"
+    );
 
   if (!dot) return;
 
-  if (thinking) {
-    dot.style.background =
-      "#f5c542";
-  } else {
-    dot.style.background =
-      "var(--success)";
-  }
+  dot.style.background =
+    thinking
+      ? "#f5c542"
+      : "var(--success)";
 }
 
 function clearCurrentChat() {
@@ -739,7 +974,8 @@ function clearCurrentChat() {
   const container =
     $("chatMessages");
 
-  if (!container) return;
+  if (!container)
+    return;
 
   container.innerHTML = `
     <div class="welcome-chat" id="welcomeChat">
@@ -763,16 +999,16 @@ function startNewChat() {
   const container =
     $("chatMessages");
 
-  if (container) {
+  if (!container)
+    return;
 
-    container.innerHTML = `
-      <div class="welcome-chat" id="welcomeChat">
-        <div class="nova-big">N</div>
-        <h1>New conversation</h1>
-        <p>What would you like to talk about?</p>
-      </div>
-    `;
-  }
+  container.innerHTML = `
+    <div class="welcome-chat" id="welcomeChat">
+      <div class="nova-big">N</div>
+      <h1>New conversation</h1>
+      <p>What would you like to talk about?</p>
+    </div>
+  `;
 }
 
 
@@ -784,7 +1020,9 @@ function saveChats() {
 
   localStorage.setItem(
     "novaChats",
-    JSON.stringify(chatMessages)
+    JSON.stringify(
+      chatMessages
+    )
   );
 }
 
@@ -793,7 +1031,8 @@ function renderHistory() {
   const list =
     $("historyList");
 
-  if (!list) return;
+  if (!list)
+    return;
 
   list.innerHTML = "";
 
@@ -816,55 +1055,65 @@ function renderHistory() {
     const first =
       chatMessages[i];
 
-    if (first) {
+    if (first)
       groups.push(first);
-    }
   }
 
-  groups.reverse().forEach(item => {
+  groups.reverse().forEach(
+    item => {
 
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "list-item";
-
-    const title =
-      document.createElement("strong");
-
-    title.textContent =
-      item.content.slice(0, 80) ||
-      "Conversation";
-
-    const p =
-      document.createElement("p");
-
-    p.textContent =
-      new Date(
-        item.time
-      ).toLocaleString();
-
-    row.append(
-      title,
-      p
-    );
-
-    row.addEventListener(
-      "click",
-      () => {
-
-        navigate("chat");
-
-        showToast(
-          "Conversation selected"
+      const row =
+        document.createElement(
+          "div"
         );
-      }
-    );
 
-    list.appendChild(
-      row
-    );
-  });
+      row.className =
+        "list-item";
+
+      const title =
+        document.createElement(
+          "strong"
+        );
+
+      title.textContent =
+        item.content.slice(
+          0,
+          80
+        ) ||
+        "Conversation";
+
+      const p =
+        document.createElement(
+          "p"
+        );
+
+      p.textContent =
+        new Date(
+          item.time
+        ).toLocaleString();
+
+      row.append(
+        title,
+        p
+      );
+
+      row.addEventListener(
+        "click",
+        () => {
+
+          navigate("chat");
+
+          showToast(
+            "Conversation selected"
+          );
+        }
+      );
+
+      list.appendChild(
+        row
+      );
+    }
+  );
 }
 
 function setupHistorySearch() {
@@ -874,7 +1123,8 @@ function setupHistorySearch() {
     function () {
 
       const query =
-        this.value.toLowerCase();
+        this.value
+          .toLowerCase();
 
       document
         .querySelectorAll(
@@ -940,7 +1190,8 @@ function renderSaved() {
   const list =
     $("savedList");
 
-  if (!list) return;
+  if (!list)
+    return;
 
   list.innerHTML = "";
 
@@ -957,13 +1208,17 @@ function renderSaved() {
     .forEach(item => {
 
       const row =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       row.className =
         "list-item";
 
       const text =
-        document.createElement("p");
+        document.createElement(
+          "p"
+        );
 
       text.textContent =
         typeof item === "string"
@@ -971,7 +1226,9 @@ function renderSaved() {
           : item.text;
 
       const remove =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       remove.className =
         "secondary-btn";
@@ -1134,7 +1391,8 @@ function setupProfile() {
       const button =
         $("showProfilePassword");
 
-      if (!input) return;
+      if (!input)
+        return;
 
       if (
         input.type ===
@@ -1193,7 +1451,8 @@ function setupProfile() {
 
 function updateUserUI() {
 
-  if (!currentUser) return;
+  if (!currentUser)
+    return;
 
   const username =
     currentUser.username ||
@@ -1203,25 +1462,30 @@ function updateUserUI() {
     currentUser.avatar ||
     "";
 
-  $("sidebarUsername").textContent =
-    username;
+  if ($("sidebarUsername"))
+    $("sidebarUsername").textContent =
+      username;
 
-  $("profileName").textContent =
-    username;
+  if ($("profileName"))
+    $("profileName").textContent =
+      username;
 
-  $("profileUsername").textContent =
-    username;
+  if ($("profileUsername"))
+    $("profileUsername").textContent =
+      username;
 
-  $("profileEmail").textContent =
-    currentUser.email ||
-    "—";
+  if ($("profileEmail"))
+    $("profileEmail").textContent =
+      currentUser.email ||
+      "—";
 
-  $("profileDate").textContent =
-    currentUser.registered
-      ? new Date(
-          currentUser.registered
-        ).toLocaleDateString()
-      : "—";
+  if ($("profileDate"))
+    $("profileDate").textContent =
+      currentUser.registered
+        ? new Date(
+            currentUser.registered
+          ).toLocaleDateString()
+        : "—";
 
   if ($("profilePassword")) {
     $("profilePassword").value =
@@ -1260,9 +1524,11 @@ function setAvatar(
   username
 ) {
 
-  if (!element) return;
+  if (!element)
+    return;
 
-  element.innerHTML = "";
+  element.innerHTML =
+    "";
 
   if (image) {
 
@@ -1271,7 +1537,8 @@ function setAvatar(
         "img"
       );
 
-    img.src = image;
+    img.src =
+      image;
 
     element.appendChild(
       img
@@ -1332,16 +1599,17 @@ function openEditProfile() {
 
 function saveProfile() {
 
-  if (!currentUser) return;
+  if (!currentUser)
+    return;
 
   const username =
     $("editUsername")
-      .value
-      .trim();
+      ?.value
+      .trim() || "";
 
   const newPassword =
     $("editPassword")
-      .value;
+      ?.value || "";
 
   if (
     !/^[A-Za-z0-9_]{3,20}$/.test(
@@ -1349,8 +1617,10 @@ function saveProfile() {
     )
   ) {
 
-    $("editError").textContent =
-      "Username must be 3–20 English letters, numbers or _.";
+    if ($("editError")) {
+      $("editError").textContent =
+        "Username must be 3–20 English letters, numbers or _.";
+    }
 
     return;
   }
@@ -1360,8 +1630,10 @@ function saveProfile() {
     newPassword.length < 6
   ) {
 
-    $("editError").textContent =
-      "Password must contain at least 6 characters.";
+    if ($("editError")) {
+      $("editError").textContent =
+        "Password must contain at least 6 characters.";
+    }
 
     return;
   }
@@ -1388,8 +1660,10 @@ function saveProfile() {
     )
   );
 
-  $("editSuccess").textContent =
-    "Profile updated.";
+  if ($("editSuccess")) {
+    $("editSuccess").textContent =
+      "Profile updated.";
+  }
 
   updateUserUI();
 
@@ -1412,7 +1686,8 @@ function changeAvatar(event) {
   const file =
     event.target.files?.[0];
 
-  if (!file) return;
+  if (!file)
+    return;
 
   if (
     !file.type.startsWith(
@@ -1463,7 +1738,8 @@ function changeAvatar(event) {
 
 function removeAvatar() {
 
-  if (!currentUser) return;
+  if (!currentUser)
+    return;
 
   currentUser.avatar =
     "";
@@ -1623,7 +1899,8 @@ function setupSettings() {
         !confirm(
           "Clear all chat history?"
         )
-      ) return;
+      )
+        return;
 
       chatMessages = [];
 
@@ -1644,9 +1921,11 @@ function setupSettings() {
         !confirm(
           "Delete all NOVA data from this browser?"
         )
-      ) return;
+      )
+        return;
 
       localStorage.clear();
+
       location.reload();
     }
   );
@@ -1679,21 +1958,13 @@ function applySettings() {
     "size-large"
   );
 
-  if (
-    settings.size ===
-    "small"
-  ) {
-
+  if (settings.size === "small") {
     document.body.classList.add(
       "size-small"
     );
   }
 
-  if (
-    settings.size ===
-    "large"
-  ) {
-
+  if (settings.size === "large") {
     document.body.classList.add(
       "size-large"
     );
@@ -1713,45 +1984,37 @@ function applySettings() {
       colors.blue
   );
 
-  if ($("themeSelect")) {
+  if ($("themeSelect"))
     $("themeSelect").value =
       settings.theme;
-  }
 
-  if ($("accentSelect")) {
+  if ($("accentSelect"))
     $("accentSelect").value =
       settings.accent;
-  }
 
-  if ($("sizeSelect")) {
+  if ($("sizeSelect"))
     $("sizeSelect").value =
       settings.size;
-  }
 
-  if ($("animationsToggle")) {
+  if ($("animationsToggle"))
     $("animationsToggle").checked =
       settings.animations;
-  }
 
-  if ($("soundToggle")) {
+  if ($("soundToggle"))
     $("soundToggle").checked =
       settings.sound;
-  }
 
-  if ($("enterSendToggle")) {
+  if ($("enterSendToggle"))
     $("enterSendToggle").checked =
       settings.enterSend;
-  }
 
-  if ($("autoSaveToggle")) {
+  if ($("autoSaveToggle"))
     $("autoSaveToggle").checked =
       settings.autoSave;
-  }
 
-  if ($("compactChatToggle")) {
+  if ($("compactChatToggle"))
     $("compactChatToggle").checked =
       settings.compact;
-  }
 }
 
 
@@ -1808,7 +2071,8 @@ function renderFiles() {
   const list =
     $("filesList");
 
-  if (!list) return;
+  if (!list)
+    return;
 
   list.innerHTML =
     "";
@@ -1894,7 +2158,8 @@ function renderFiles() {
 
 function formatBytes(bytes) {
 
-  if (!bytes) return "0 B";
+  if (!bytes)
+    return "0 B";
 
   const units = [
     "B",
@@ -1931,167 +2196,332 @@ function formatBytes(bytes) {
    VOICE INPUT
 ========================= */
 
-/* =========================
-   VOICE TEST
-========================= */
-
-/* =========================
-   VOICE
-========================= */
-
 let recognition = null;
 let isListening = false;
+let voiceStarting = false;
 
-const SpeechRecognition =
-  window.SpeechRecognition ||
-  window.webkitSpeechRecognition;
+function getSpeechRecognition() {
+
+  return (
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition ||
+    null
+  );
+}
+
+function setupVoice() {
+
+  const button =
+    $("voiceBtn");
+
+  if (!button) {
+    console.warn(
+      "VOICE: voiceBtn not found"
+    );
+
+    return;
+  }
+
+  /*
+    ВАЖНО:
+    Убираем старые обработчики через замену
+    кнопки на её клон.
+    Это предотвращает двойной запуск.
+  */
+
+  const cleanButton =
+    button.cloneNode(true);
+
+  button.replaceWith(
+    cleanButton
+  );
+
+  cleanButton.addEventListener(
+    "click",
+    startVoiceInput
+  );
+
+  console.log(
+    "VOICE: READY"
+  );
+}
 
 function startVoiceInput() {
+
+  const SpeechRecognition =
+    getSpeechRecognition();
+
   if (!SpeechRecognition) {
-    showToast("❌ Speech Recognition не поддерживается");
+
+    showToast(
+      "❌ Speech Recognition не поддерживается этим браузером"
+    );
+
+    console.error(
+      "VOICE: SpeechRecognition unavailable"
+    );
+
+    return;
+  }
+
+  if (voiceStarting) {
     return;
   }
 
   if (isListening) {
-    recognition.stop();
+
+    try {
+      recognition?.stop();
+    } catch {}
+
     return;
   }
 
-  recognition = new SpeechRecognition();
-
-  recognition.lang = "ru-RU";
-  recognition.interimResults = false;
-  recognition.continuous = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-
-    $("voiceBtn")?.classList.add("listening");
-
-    if ($("aiStatus")) {
-      $("aiStatus").innerHTML =
-        "<i></i>Listening...";
-    }
-
-    showToast("🎙 Говори...");
-    console.log("VOICE START");
-  };
-
-  recognition.onresult = event => {
-    const text =
-      event.results?.[0]?.[0]?.transcript || "";
-
-    console.log("VOICE RESULT:", text);
-
-    if (!text.trim()) {
-      showToast("😭 Я ничего не услышал");
-      return;
-    }
-
-    const input = $("chatInput");
-
-    if (input) {
-      input.value = input.value.trim()
-        ? input.value + " " + text
-        : text;
-
-      autoResize();
-      input.focus();
-    }
-
-    showToast("✅ Распознано");
-  };
-
-  recognition.onerror = event => {
-    console.error(
-      "VOICE ERROR:",
-      event.error
-    );
-
-    isListening = false;
-
-    $("voiceBtn")?.classList.remove(
-      "listening"
-    );
-
-    if ($("aiStatus")) {
-      $("aiStatus").innerHTML =
-        "<i></i>NOVA is ready";
-    }
-
-    /* aborted — не показываем как ошибку */
-    if (event.error === "aborted") {
-      return;
-    }
-
-    if (event.error === "not-allowed") {
-      showToast(
-        "❌ Нет доступа к микрофону"
-      );
-      return;
-    }
-
-    if (event.error === "no-speech") {
-      showToast(
-        "😭 Я ничего не услышал"
-      );
-      return;
-    }
-
-    if (event.error === "network") {
-      showToast(
-        "❌ Ошибка сети распознавания"
-      );
-      return;
-    }
-
-    showToast(
-      "❌ Voice error: " +
-      event.error
-    );
-  };
-
-  recognition.onend = () => {
-    console.log("VOICE END");
-
-    isListening = false;
-
-    $("voiceBtn")?.classList.remove(
-      "listening"
-    );
-
-    if ($("aiStatus")) {
-      $("aiStatus").innerHTML =
-        "<i></i>NOVA is ready";
-    }
-  };
+  voiceStarting = true;
 
   try {
+
+    recognition =
+      new SpeechRecognition();
+
+    recognition.lang =
+      "ru-RU";
+
+    recognition.continuous =
+      false;
+
+    recognition.interimResults =
+      false;
+
+    recognition.maxAlternatives =
+      1;
+
+    recognition.onstart =
+      () => {
+
+        voiceStarting =
+          false;
+
+        isListening =
+          true;
+
+        $("voiceBtn")?.classList.add(
+          "listening"
+        );
+
+        setAIStatus(
+          "Listening...",
+          false
+        );
+
+        showToast(
+          "🎙 Говори..."
+        );
+
+        console.log(
+          "VOICE: START"
+        );
+      };
+
+    recognition.onresult =
+      event => {
+
+        const result =
+          event.results?.[0]?.[0];
+
+        const text =
+          result?.transcript || "";
+
+        console.log(
+          "VOICE RESULT:",
+          text
+        );
+
+        if (!text.trim()) {
+
+          showToast(
+            "😭 Я ничего не услышал"
+          );
+
+          return;
+        }
+
+        const input =
+          $("chatInput");
+
+        if (input) {
+
+          input.value =
+            input.value.trim()
+              ? input.value +
+                " " +
+                text
+              : text;
+
+          autoResize();
+
+          input.focus();
+        }
+
+        showToast(
+          "✅ Распознано"
+        );
+      };
+
+    recognition.onerror =
+      event => {
+
+        console.error(
+          "VOICE ERROR:",
+          event.error
+        );
+
+        voiceStarting =
+          false;
+
+        isListening =
+          false;
+
+        $("voiceBtn")?.classList.remove(
+          "listening"
+        );
+
+        setAIStatus(
+          "NOVA is ready",
+          false
+        );
+
+        /*
+          iPad/Safari иногда отправляет
+          aborted даже при нормальной работе.
+          Поэтому не показываем это пользователю
+          как ошибку.
+        */
+
+        if (
+          event.error ===
+          "aborted"
+        ) {
+
+          console.log(
+            "VOICE: aborted ignored"
+          );
+
+          return;
+        }
+
+        if (
+          event.error ===
+          "not-allowed"
+        ) {
+
+          showToast(
+            "❌ Safari не дал доступ к микрофону"
+          );
+
+          return;
+        }
+
+        if (
+          event.error ===
+          "audio-capture"
+        ) {
+
+          showToast(
+            "❌ Не удалось получить микрофон"
+          );
+
+          return;
+        }
+
+        if (
+          event.error ===
+          "no-speech"
+        ) {
+
+          showToast(
+            "😭 Речь не обнаружена"
+          );
+
+          return;
+        }
+
+        if (
+          event.error ===
+          "network"
+        ) {
+
+          showToast(
+            "❌ Ошибка сети распознавания"
+          );
+
+          return;
+        }
+
+        showToast(
+          "❌ Voice error: " +
+          event.error
+        );
+      };
+
+    recognition.onend =
+      () => {
+
+        console.log(
+          "VOICE: END"
+        );
+
+        voiceStarting =
+          false;
+
+        isListening =
+          false;
+
+        $("voiceBtn")?.classList.remove(
+          "listening"
+        );
+
+        setAIStatus(
+          "NOVA is ready",
+          false
+        );
+
+        recognition =
+          null;
+      };
+
+    console.log(
+      "VOICE: starting..."
+    );
+
     recognition.start();
+
   } catch (error) {
+
     console.error(
       "VOICE START ERROR:",
       error
     );
 
-    isListening = false;
+    voiceStarting =
+      false;
+
+    isListening =
+      false;
 
     $("voiceBtn")?.classList.remove(
       "listening"
     );
 
+    recognition =
+      null;
+
     showToast(
-      "❌ Не удалось запустить микрофон"
+      "❌ Не удалось запустить голосовой ввод"
     );
   }
 }
 
-/* Один обработчик кнопки */
-$("voiceBtn")?.addEventListener(
-  "click",
-  startVoiceInput
-);
 
 /* =========================
    TOAST
@@ -2102,7 +2532,8 @@ function showToast(text) {
   const container =
     $("toastContainer");
 
-  if (!container) return;
+  if (!container)
+    return;
 
   const toast =
     document.createElement(
@@ -2126,13 +2557,3 @@ function showToast(text) {
     2200
   );
 }
-
-
-/* =========================
-   HISTORY SEARCH
-========================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  setupHistorySearch
-);
