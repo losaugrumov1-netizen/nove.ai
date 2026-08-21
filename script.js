@@ -1935,6 +1935,10 @@ function formatBytes(bytes) {
    VOICE TEST
 ========================= */
 
+/* =========================
+   VOICE
+========================= */
+
 let recognition = null;
 let isListening = false;
 
@@ -1949,7 +1953,7 @@ function startVoiceInput() {
   }
 
   if (isListening) {
-    recognition?.stop();
+    recognition.stop();
     return;
   }
 
@@ -1964,20 +1968,24 @@ function startVoiceInput() {
     isListening = true;
 
     $("voiceBtn")?.classList.add("listening");
-    $("aiStatus").innerHTML = "<i></i>Listening...";
 
-    showToast("🎙 Говори сейчас...");
-    console.log("VOICE: START");
+    if ($("aiStatus")) {
+      $("aiStatus").innerHTML =
+        "<i></i>Listening...";
+    }
+
+    showToast("🎙 Говори...");
+    console.log("VOICE START");
   };
 
-  recognition.onresult = (event) => {
+  recognition.onresult = event => {
     const text =
       event.results?.[0]?.[0]?.transcript || "";
 
     console.log("VOICE RESULT:", text);
 
     if (!text.trim()) {
-      showToast("😭 Ничего не услышал");
+      showToast("😭 Я ничего не услышал");
       return;
     }
 
@@ -1989,54 +1997,101 @@ function startVoiceInput() {
         : text;
 
       autoResize();
+      input.focus();
     }
 
     showToast("✅ Распознано");
   };
 
-  recognition.onerror = (event) => {
-    console.error("VOICE ERROR:", event.error);
+  recognition.onerror = event => {
+    console.error(
+      "VOICE ERROR:",
+      event.error
+    );
 
     isListening = false;
 
-    $("voiceBtn")?.classList.remove("listening");
-    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
+    $("voiceBtn")?.classList.remove(
+      "listening"
+    );
 
-    if (event.error === "aborted") {
-      showToast("⚠️ Распознавание прервано");
-    } else if (event.error === "not-allowed") {
-      showToast("❌ Нет доступа к микрофону");
-    } else if (event.error === "no-speech") {
-      showToast("😭 Речь не обнаружена");
-    } else if (event.error === "network") {
-      showToast("❌ Ошибка сети распознавания");
-    } else {
-      showToast("❌ Voice error: " + event.error);
+    if ($("aiStatus")) {
+      $("aiStatus").innerHTML =
+        "<i></i>NOVA is ready";
     }
+
+    /* aborted — не показываем как ошибку */
+    if (event.error === "aborted") {
+      return;
+    }
+
+    if (event.error === "not-allowed") {
+      showToast(
+        "❌ Нет доступа к микрофону"
+      );
+      return;
+    }
+
+    if (event.error === "no-speech") {
+      showToast(
+        "😭 Я ничего не услышал"
+      );
+      return;
+    }
+
+    if (event.error === "network") {
+      showToast(
+        "❌ Ошибка сети распознавания"
+      );
+      return;
+    }
+
+    showToast(
+      "❌ Voice error: " +
+      event.error
+    );
   };
 
   recognition.onend = () => {
-    console.log("VOICE: END");
+    console.log("VOICE END");
 
     isListening = false;
 
-    $("voiceBtn")?.classList.remove("listening");
-    $("aiStatus").innerHTML = "<i></i>NOVA is ready";
+    $("voiceBtn")?.classList.remove(
+      "listening"
+    );
+
+    if ($("aiStatus")) {
+      $("aiStatus").innerHTML =
+        "<i></i>NOVA is ready";
+    }
   };
 
   try {
     recognition.start();
   } catch (error) {
-    console.error("VOICE START ERROR:", error);
-    showToast("❌ Не удалось запустить микрофон");
+    console.error(
+      "VOICE START ERROR:",
+      error
+    );
+
+    isListening = false;
+
+    $("voiceBtn")?.classList.remove(
+      "listening"
+    );
+
+    showToast(
+      "❌ Не удалось запустить микрофон"
+    );
   }
 }
 
+/* Один обработчик кнопки */
 $("voiceBtn")?.addEventListener(
   "click",
   startVoiceInput
 );
-
 
 /* =========================
    TOAST
