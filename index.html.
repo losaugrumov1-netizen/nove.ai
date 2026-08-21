@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#08090c">
+  <title>NOVA AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-mark">N</div>
+      <div><strong>NOVA</strong><span>AI ASSISTANT</span></div>
+    </div>
+    <div class="auth-heading">
+      <h1 id="authTitle">Create account</h1>
+      <p id="authSubtitle">Create your NOVA account to continue.</p>
+    </div>
+    <form id="authForm" novalidate>
+      <label>Username</label>
+      <input id="username" type="text" placeholder="Your username" autocomplete="username">
+      <small id="usernameError"></small>
+      <div id="emailBox">
+        <label>Gmail</label>
+        <input id="email" type="email" placeholder="example@gmail.com" autocomplete="email">
+        <small id="emailError"></small>
+      </div>
+      <label>Password</label>
+      <div class="password-wrap">
+        <input id="password" type="password" placeholder="Minimum 6 characters" autocomplete="new-password">
+        <button type="button" id="togglePassword">SHOW</button>
+      </div>
+      <div class="strength"><span id="strengthBar"></span></div>
+      <small id="passwordError"></small>
+      <div id="confirmBox">
+        <label>Confirm password</label>
+        <div class="password-wrap">
+          <input id="confirmPassword" type="password" placeholder="Repeat password">
+          <button type="button" id="toggleConfirmPassword">SHOW</button>
+        </div>
+        <small id="confirmError"></small>
+      </div>
+      <button class="primary-btn full" type="submit" id="authButton">CREATE ACCOUNT</button>
+    </form>
+    <div class="auth-switch">
+      <span id="switchText">Already have an account?</span>
+      <button type="button" id="switchAuth">Login</button>
+    </div>
+  </div>
+</section>
+<section id="app" class="app hidden">
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div><strong>NOVA</strong><span>AI ASSISTANT</span></div>
+      </div>
+      <button class="mobile-close" id="closeSidebar">×</button>
+    </div>
+    <button class="new-chat-btn" id="newChatBtn">＋ New chat</button>
+    <nav>
+      <button class="nav-item active" data-page="home"><span>⌂</span><b>Home</b></button>
+      <button class="nav-item" data-page="chat"><span>✦</span><b>AI Chat</b></button>
+      <button class="nav-item" data-page="history"><span>◷</span><b>History</b></button>
+      <button class="nav-item" data-page="saved"><span>☆</span><b>Saved</b></button>
+      <button class="nav-item" data-page="files"><span>□</span><b>Files</b></button>
+      <button class="nav-item" data-page="settings"><span>⚙</span><b>Settings</b></button>
+      <button class="nav-item" data-page="about"><span>ⓘ</span><b>About</b></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="account-mini" id="accountBtn">
+        <div class="avatar small" id="sidebarAvatar">N</div>
+        <div class="account-info">
+          <strong id="sidebarUsername">User</strong>
+          <span>Free account</span>
+        </div>
+        <span>›</span>
+      </button>
+    </div>
+  </aside>
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+  <button id="showSidebarBtn" class="show-sidebar-btn">☰</button>
+  <main class="main">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="mobile-menu" id="openSidebar">☰</button>
+        <div>
+          <h2 id="pageTitle">Home</h2>
+          <p id="pageSubtitle">Your personal AI workspace</p>
+        </div>
+      </div>
+      <button class="top-avatar" id="topAvatar">N</button>
+    </header>
+    <div class="content">
+      <section class="page active" id="page-home">
+        <div class="hero">
+          <div class="eyebrow">NOVA AI</div>
+          <h1>Your ideas.<br>Made smarter.</h1>
+          <p>NOVA is your personal AI workspace for questions, ideas, writing, files and everyday tasks.</p>
+          <button class="primary-btn" id="startChatBtn">Start chatting</button>
+        </div>
+        <div class="section-title">
+          <b>QUICK ACTIONS</b>
+          <p>Jump into something useful.</p>
+        </div>
+        <div class="quick-grid">
+          <button class="quick-card" data-quick="chat"><span>✦</span><strong>Ask NOVA</strong><p>Start a conversation with AI.</p><i>→</i></button>
+          <button class="quick-card" data-quick="history"><span>◷</span><strong>History</strong><p>Find previous conversations.</p><i>→</i></button>
+          <button class="quick-card" data-quick="files"><span>□</span><strong>Files</strong><p>Upload and manage files.</p><i>→</i></button>
+        </div>
+      </section>
+      <section class="page" id="page-chat">
+        <div class="chat-shell">
+          <div class="chat-messages" id="chatMessages">
+            <div class="welcome-chat" id="welcomeChat">
+              <div class="nova-big">N</div>
+              <h1>How can I help?</h1>
+              <p>Ask NOVA anything, brainstorm an idea, write something or just chat.</p>
+              <div class="suggestions">
+                <button class="suggestion" data-suggestion="Give me 5 creative YouTube ideas">YouTube ideas</button>
+                <button class="suggestion" data-suggestion="Help me build a website">Build a website</button>
+                <button class="suggestion" data-suggestion="Give me a business idea">Business idea</button>
+                <button class="suggestion" data-suggestion="Explain something interesting">Explain something</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-bottom">
+            <div class="chat-tools">
+              <span id="aiStatus"><i></i>NOVA is ready</span>
+              <div>
+                <button id="clearChatBtn">Clear</button>
+                <button id="hideMenuChatBtn">Hide menu</button>
+              </div>
+            </div>
+            <div class="composer">
+              <button class="attach-btn" id="attachBtn">＋</button>
+              <textarea id="chatInput" rows="1" placeholder="Message NOVA..."></textarea>
+              <button class="voice-btn" id="voiceBtn">🎙</button>
+              <button class="send-btn" id="sendBtn">↑</button>
+            </div>
+            <input id="fileInput" type="file" multiple hidden>
+            <div class="disclaimer">NOVA can make mistakes. Check important information.</div>
+          </div>
+        </div>
+      </section>
+      <section class="page" id="page-history">
+        <div class="section-head">
+          <div><div class="eyebrow">YOUR DATA</div><h1>History</h1><p>Previous NOVA conversations.</p></div>
+          <input class="search" id="historySearch" placeholder="Search history...">
+        </div>
+        <div class="list" id="historyList"></div>
+      </section>
+      <section class="page" id="page-saved">
+        <div class="section-head">
+          <div><div class="eyebrow">BOOKMARKS</div><h1>Saved</h1><p>Responses you decided to keep.</p></div>
+        </div>
+        <div class="list" id="savedList"></div>
+      </section>
+      <section class="page" id="page-files">
+        <div class="section-head">
+          <div><div class="eyebrow">UPLOADS</div><h1>Files</h1><p>Files attached to your workspace.</p></div>
+          <button class="primary-btn" id="uploadFileBtn">Upload file</button>
+        </div>
+        <div class="list" id="filesList"></div>
+      </section>
+      <section class="page" id="page-settings">
+        <div class="section-head">
+          <div><div class="eyebrow">CUSTOMIZE</div><h1>Settings</h1><p>Configure your NOVA workspace.</p></div>
+        </div>
+        <div class="settings-card">
+          <div class="setting"><div><strong>Theme</strong><p>Choose appearance.</p></div><select id="themeSelect"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+          <div class="setting"><div><strong>Accent color</strong><p>Change NOVA's main color.</p></div><select id="accentSelect"><option value="blue">Blue</option><option value="purple">Purple</option><option value="cyan">Cyan</option><option value="green">Green</option><option value="pink">Pink</option></select></div>
+          <div class="setting"><div><strong>Interface size</strong><p>Make the interface smaller or larger.</p></div><select id="sizeSelect"><option value="normal">Normal</option><option value="small">Small</option><option value="large">Large</option></select></div>
+          <div class="setting"><div><strong>Animations</strong><p>Enable smooth animations.</p></div><input id="animationsToggle" type="checkbox" checked></div>
+          <div class="setting"><div><strong>Sound effects</strong><p>Play small interface sounds.</p></div><input id="soundToggle" type="checkbox"></div>
+          <div class="setting"><div><strong>Enter to send</strong><p>Press Enter to send messages.</p></div><input id="enterSendToggle" type="checkbox" checked></div>
+          <div class="setting"><div><strong>Auto save chats</strong><p>Automatically save conversations.</p></div><input id="autoSaveToggle" type="checkbox" checked></div>
+          <div class="setting"><div><strong>Compact chat</strong><p>Keep the composer compact.</p></div><input id="compactChatToggle" type="checkbox" checked></div>
+          <div class="setting"><div><strong>Clear history</strong><p>Delete saved conversations.</p></div><button class="danger-btn" id="clearHistoryBtn">Clear history</button></div>
+          <div class="setting"><div><strong>Clear all data</strong><p>Delete NOVA data from this browser.</p></div><button class="danger-btn" id="clearDataBtn">Clear data</button></div>
+        </div>
+      </section>
+      <section class="page" id="page-about">
+        <div class="about-card">
+          <div class="about-logo">N</div>
+          <div class="eyebrow">ABOUT NOVA</div>
+          <h1>A smarter workspace.</h1>
+          <p>NOVA is a clean AI workspace with conversations, history, saved responses, files, profiles and customization.</p>
+          <div class="about-grid">
+            <div><span>01</span><strong>Fast</strong><p>Simple interface with smooth navigation.</p></div>
+            <div><span>02</span><strong>Private</strong><p>Demo data is stored locally in your browser.</p></div>
+            <div><span>03</span><strong>Flexible</strong><p>Theme, colors and workspace controls.</p></div>
+          </div>
+          <div class="version">NOVA AI • v2.0</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</section>
+<!-- PROFILE -->
+<div class="modal-overlay hidden" id="profileModal">
+  <div class="profile-menu">
+    <button class="modal-close" data-close="profileModal">×</button>
+    <div class="profile-header">
+      <div class="avatar profile-avatar" id="profileAvatar">N</div>
+      <div><h2 id="profileName">User</h2><p>Free account</p></div>
+    </div>
+    <div class="avatar-actions">
+      <button class="secondary-btn" id="changeAvatarBtn">Change avatar</button>
+      <button class="secondary-btn" id="removeAvatarBtn">Remove</button>
+      <input id="avatarInput" type="file" accept="image/*" hidden>
+    </div>
+    <div class="profile-info">
+      <div><span>USERNAME</span><strong id="profileUsername">User</strong></div>
+      <div><span>PLAN</span><strong>Free</strong></div>
+      <div><span>GMAIL</span><strong id="profileEmail">—</strong></div>
+      <div><span>REGISTERED</span><strong id="profileDate">—</strong></div>
+    </div>
+    <div class="profile-password">
+      <span>PASSWORD</span>
+      <div>
+        <input id="profilePassword" type="password" readonly>
+        <button id="showProfilePassword">SHOW</button>
+      </div>
+    </div>
+    <button class="profile-row" id="editProfileBtn"><span>✎</span><b>Edit profile</b><span>›</span></button>
+    <button class="profile-row" id="profileSettingsBtn"><span>⚙</span><b>Settings</b><span>›</span></button>
+    <button class="logout-btn" id="logoutBtn">Log out</button>
+  </div>
+</div>
+<!-- EDIT PROFILE -->
+<div class="modal-overlay hidden" id="editModal">
+  <div class="edit-menu">
+    <button class="modal-close" data-close="editModal">×</button>
+    <h2>Edit profile</h2>
+    <label>Username</label>
+    <input id="editUsername" type="text">
+    <label>New password</label>
+    <div class="password-wrap">
+      <input id="editPassword" type="password" placeholder="Leave empty to keep current">
+      <button id="toggleEditPassword" type="button">SHOW</button>
+    </div>
+    <small id="editError"></small>
+    <div class="success" id="editSuccess"></div>
+    <button class="primary-btn full" id="saveProfileBtn">Save changes</button>
+  </div>
+</div>
+<div id="toastContainer"></div>
+<script src="script.js"></script>
+</body>
+</html>
