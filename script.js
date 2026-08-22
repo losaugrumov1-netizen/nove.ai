@@ -1,4 +1,4 @@
-const API_URL = "https://nove-ai-1.onrender.com";
+const API_URL = "https://nove-ai.onrender.com";
 
 const $ = (id) => document.getElementById(id);
 
