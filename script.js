@@ -1,4 +1,11 @@
 const API_URL = "https://nove-ai.onrender.com";
+const SUPABASE_URL = "https://mdlrlgyitqtuojuhmzyb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_N0oIXwELXrxxB3a1pj6tlw_lTGcX9j0";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 const $ = (id) => document.getElementById(id);
 
